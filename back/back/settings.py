@@ -9,7 +9,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -39,6 +40,42 @@ INSTALLED_APPS = [
     "album.apps.AlbumConfig",  # 相册模块
     "rest_framework",
 ]
+
+# 允许所有域名访问（开发环境）
+CORS_ALLOW_ALL_ORIGINS = True
+
+# 或设置允许的域名（生产环境）
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8080",
+#     "http://127.0.0.1:8080",
+# ]
+
+# 允许携带Cookie
+CORS_ALLOW_CREDENTIALS = True
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),  # 访问token有效期7天
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),  # 刷新token有效期30天
+    'ROTATE_REFRESH_TOKENS': True,  # 刷新token后返回新的refresh_token
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': 'your-secret-key-change-in-production',  # 生产环境修改
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+
+    'JTI_CLAIM': 'jti',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -118,3 +155,7 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_URL = '/media/'
+# 设置上传文件的路径
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # 指定根目录

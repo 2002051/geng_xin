@@ -24,6 +24,7 @@
 			}
 		},
 		onLoad() {
+			
 			setTimeout(()=> {
 				// 模拟动态取数据
 				this.list = [
@@ -37,16 +38,17 @@
 							// 'https://ww1.sinaimg.cn/mw690/60ed0cf7ly1hp6s4n5peoj20u01t1wv7.jpg'
 							
 							// 方式二 对象数组，更贴合一般项目需求，可传入其他参数
-							{ image: 'https://ww1.sinaimg.cn/mw690/60ed0cf7ly1hp6s4mnl59j20u01t1k28.jpg'},
-							{ image: 'https://ww4.sinaimg.cn/mw690/008rOMXAgy1hom3fmylzmj313u1z2akp.jpg'},
-							{ image: 'https://ww1.sinaimg.cn/mw690/60ed0cf7ly1hp6s4n5peoj20u01t1wv7.jpg'},
-							{ image: 'https://wx1.sinaimg.cn/mw690/b3b42fe1gy1hpq9ja81chj20yi22o43z.jpg'},
-							{ image: 'https://wx4.sinaimg.cn/mw690/006xJGFdly1hptqlliahbj32hl5djnpd.jpg'},
-							{ image: 'https://ww4.sinaimg.cn/mw690/9f4cb4b9gy1hpeopw0x9uj20rs1o6q7d.jpg'},
-							{ image: 'https://img2.baidu.com/it/u=1932232343,3478732518&fm=253&fmt=auto&app=120&f=JPEG?w=500&h=500'},
-							{ image: 'https://img0.baidu.com/it/u=2424137384,2323500862&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500'},
-							{ image: 'https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fsafe-img.xhscdn.com%2Fbw1%2F7d6f9419-cae4-4935-a7a6-150dccf979a2%3FimageView2%2F2%2Fw%2F1080%2Fformat%2Fjpg&refer=http%3A%2F%2Fsafe-img.xhscdn.com&app=2002&size=f9999,10000&q=a80&n=0&g=0n&fmt=auto?sec=1720088680&t=d5fae6215ad7c9871f0e58f90b75cb1f'},
-							{ image: 'https://wx1.sinaimg.cn/mw690/005XpTbZly1hpkp71sqhyj30u00u0t9w.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/127.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/128.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/129.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/133.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/134.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/135.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/139.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/134.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/140.jpg'},
+							{ image: 'http://127.0.0.1:8000/media/141.jpg'}
+							
 							
 						]
 					},
