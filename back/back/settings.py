@@ -78,6 +78,7 @@ SIMPLE_JWT = {
 }
 
 MIDDLEWARE = [
+    "tools.core.CorsMiddleWare",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -156,6 +157,6 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = '/media/'
+MEDIA_URL = '../media/'
 # 设置上传文件的路径
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # 指定根目录
