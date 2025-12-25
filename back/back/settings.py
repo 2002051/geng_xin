@@ -159,4 +159,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '../media/'
 # 设置上传文件的路径
+print(BASE_DIR)
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # 指定根目录

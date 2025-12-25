@@ -249,6 +249,26 @@
 								}
 								
 								// 跳转
+								 // 2. 保存用户认证信息
+								if (res.data.token) {
+									uni.setStorageSync('token', res.data.token);
+								}
+								if (res.data.user) {
+									uni.setStorageSync('username', res.data.username);
+								}
+						
+								// const token = uni.getStorageSync('token');
+								// console.log('Token:', token);
+								uni.navigateTo({
+									url:"/pages/index/index",
+									success() {
+										console.log("跳转成功");
+									},
+									fail() {
+										console.log("跳转失败");
+									}
+								})
+							
 							}else{
 								uni.showToast({
 									title: '密码错误',
@@ -258,7 +278,6 @@
 								console.log(res.data);
 							}
 					
-						
 						},
 						fail: function(err) {
 							// 登录失败

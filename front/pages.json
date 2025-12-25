@@ -1,20 +1,58 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "我和老师"
+			}
+		},
+		{
+			"path": "pages/album/album",
+			"style": {
+				"navigationBarTitleText": "album"
+			}
+		},
+		{
+			"path": "pages/self/self",
+			"style": {
+				"navigationBarTitleText": "我的"
+			}
+		},
+		{
 			"path": "pages/login/login",
 			"style": {
 				"navigationBarTitleText": "登录",
 				"navigationStyle": "custom", // 隐藏导航栏
 				"backgroundColor": "#FFFFFF"
 			}
-		}, {
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "我和老师"
-			}
 		}
 
 	],
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#007AFF",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+				"pagePath": "pages/index/index",
+				"iconPath": "/static/tabbar/article.png",
+				"selectedIconPath": "/static/tabbar/article_sel.png",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/album/album",
+				"iconPath": "static/tabbar/album.png",
+				"selectedIconPath": "/static/tabbar/album_sel.png",
+				"text": "我的"
+			},
+			{
+				"pagePath": "pages/self/self",
+				"iconPath": "/static/tabbar/self.png",
+				"selectedIconPath": "/static/tabbar/self_sel.png",
+				"text": "我的"
+			}
+		]
+	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",

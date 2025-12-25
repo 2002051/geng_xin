@@ -33,6 +33,7 @@ class LoginView(APIView):
             token = get_jwt(payload=payload)
             return Response({
                 "code": 200,
+                "username":username,
                 'message': '登录成功',
                 'token': token
             }, status=status.HTTP_200_OK)
