@@ -11,6 +11,19 @@ const app = new Vue({
 app.$mount()
 // #endif
 
+
+// // 拦截 uni.switchTab（注意：switchTab 不支持参数）
+// const originalSwitchTab = uni.switchTab
+// uni.switchTab = function(options) {
+//   routeInterceptor.beforeEach({
+//     path: options.url
+//   }, null, () => {
+//     originalSwitchTab.call(uni, options)
+//   })
+// }
+
+
+
 // #ifdef VUE3
 import { createSSRApp } from 'vue'
 export function createApp() {

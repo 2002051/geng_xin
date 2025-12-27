@@ -253,7 +253,7 @@
 								if (res.data.token) {
 									uni.setStorageSync('token', res.data.token);
 								}
-								if (res.data.user) {
+								if (res.data.username) {
 									uni.setStorageSync('username', res.data.username);
 								}
 						

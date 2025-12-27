@@ -157,7 +157,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_URL = '../media/'
+MEDIA_URL = '/media/'
 # 设置上传文件的路径
 print(BASE_DIR)
 
