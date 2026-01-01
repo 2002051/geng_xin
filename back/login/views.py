@@ -40,4 +40,4 @@ class LoginView(APIView):
         return Response({
             "code": 400,
             'message': '用户名或密码错误',
-        }, status=status.HTTP_400_BAD_REQUEST)
+        }, status=status.HTTP_200_OK)

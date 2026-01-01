@@ -124,6 +124,7 @@
 
 <script>
 	import cfg from '../../common/cfg.js';
+	import request from '../../utils/request.js';
 
 	export default {
 		data() {
@@ -216,98 +217,70 @@
 				if (!this.canSubmit) return
 
 				this.loading = true
-
-				try {
-					// 模拟API请求
-					await new Promise(resolve => setTimeout(resolve, 1500))
-					uni.request({
-						url: `${cfg.base_url}/login/in/`,
-						method: "POST",
-						data: {
-							username: this.username,
-							password: this.userpwd,
-						},
-						header: {
-							'Content-Type': 'application/json'
-						},
-						success: function(res) {
-							if(res.data.code==200){
-								// 登录成功
-								uni.showToast({
-									title: '登录成功',
-									icon: 'success',
-									duration: 1500
-								})
-								// 保存记住密码
-								if (this.rememberMe) {
-									uni.setStorageSync('rememberedLogin', {
-										username: this.username,
-										password: this.userpwd
-									})
-								} else {
-									uni.removeStorageSync('rememberedLogin')
-								}
-								
-								// 跳转
-								 // 2. 保存用户认证信息
-								if (res.data.token) {
-									uni.setStorageSync('token', res.data.token);
-								}
-								if (res.data.username) {
-									uni.setStorageSync('username', res.data.username);
-								}
-						
-								// const token = uni.getStorageSync('token');
-								// console.log('Token:', token);
-								uni.navigateTo({
-									url:"/pages/index/index",
-									success() {
-										console.log("跳转成功");
-									},
-									fail() {
-										console.log("跳转失败");
-									}
-								})
-							
-							}else{
-								uni.showToast({
-									title: '密码错误',
-									icon:"error",
-									duration: 1500
-								})
-								console.log(res.data);
-							}
-					
-						},
-						fail: function(err) {
-							// 登录失败
-							uni.showToast({
-								title: '登录异常',
-								icon: 'fail',
-								duration: 1500
-							})
-							console.error(err);
-						}
-					})
-				
-					
-
-					// 跳转到首页
-					setTimeout(() => {
-						uni.switchTab({
-							url: '/pages/index/index'
+				uni.showLoading({
+					title: '登录中...'
+				});
+				const result = await request({
+					url: `${cfg.base_url}/login/in/`,
+					method: "POST",
+					data: {
+						username: this.username,
+						password: this.userpwd,
+					},
+					timeout: 2000
+				}).then(res => { // 请求成功，这里判断密码是否正确
+					if (res.code === 200) {
+						// 登录成功
+						uni.showToast({
+							title: '登录成功',
+							icon: 'success',
+							duration: 1500
 						})
-					}, 1500)
+						// 保存记住密码
+						if (this.rememberMe) {
+							uni.setStorageSync('rememberedLogin', {
+								username: this.username,
+								password: this.userpwd
+							})
+						} else {
+							uni.removeStorageSync('rememberedLogin')
+						}
+						// 2. 保存用户认证信息
+						if (res.token) {
+							uni.setStorageSync('token', res.token);
+						}
+						if (res.username) {
+							uni.setStorageSync('username', res.username);
+						}
 
-				} catch (error) {
-					console.error('登录失败:', error)
+						// const token = uni.getStorageSync('token');
+						// console.log('Token:', token);
+						uni.switchTab({
+							url: "/pages/index/index",
+							success() {
+								console.log("跳转成功");
+							},
+							fail(err) {
+								console.log("跳转失败:",err);
+							}
+						})
+					} else {
+						uni.showToast({
+							title: '用户名或密码错误',
+							icon: "error",
+							duration: 1500
+						})
+						console.log(res.data);
+					}
+				}).catch(error => { // 请求失败，直接报网络异常
+					console.error('网络异常:', error)
 					uni.showToast({
-						title: '登录失败，请重试',
+						title: '网络异常，请重试',
 						icon: 'none'
 					})
-				} finally {
+				}).finally(fin => {
 					this.loading = false
-				}
+				});
 			},
 
 			findPwd() {

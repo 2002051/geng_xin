@@ -35,7 +35,7 @@ class Album(models.Model):
 class Photo(models.Model):
     """照片模型"""
     # 关联相册
-    album = models.ForeignKey(Album, on_delete=models.CASCADE, verbose_name='所属相册')
+    album = models.ForeignKey(Album, on_delete=models.CASCADE, verbose_name='所属相册',related_name = 'photos')
 
     # 图片文件
     image = models.ImageField('图片', upload_to='photos/%Y/%m/')
@@ -57,3 +57,5 @@ class Photo(models.Model):
 
     def __str__(self):
         return self.title or f"照片 {self.id}"
+
+# class Article(models.Model):
