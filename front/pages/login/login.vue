@@ -2,16 +2,42 @@
 	<view class="page_login">
 		<!-- 动态背景轮播 -->
 		<view class="slider-background">
-			<swiper class="background-swiper" :autoplay="true" :interval="5000" :duration="1000" circular>
-				<swiper-item v-for="(item, index) in bgImages" :key="index">
-					<image class="bg-image" :src="item" mode="aspectFill" />
-					<view class="bg-overlay"></view>
-				</swiper-item>
-			</swiper>
+			<!-- 网络背景图（使用image标签而不是background-image） -->
+			<image 
+				v-if="networkBgImage && !bgLoadFailed" 
+				class="network-background-image"
+				:src="networkBgImage" 
+				mode="aspectFill"
+				@error="onNetworkBgError"
+				@load="onNetworkBgLoad"
+			/>
+			<view v-if="networkBgImage && !bgLoadFailed" class="network-bg-overlay"></view>
+			
+			<!-- 默认背景轮播（当没有网络图片或网络图片加载失败时显示） -->
+			<view v-if="(!networkBgImage || bgLoadFailed) && !loadingBg" class="default-background">
+				<swiper class="background-swiper" :autoplay="true" :interval="5000" :duration="1000" circular>
+					<swiper-item v-for="(item, index) in defaultBgImages" :key="index">
+						<image class="bg-image" :src="item" mode="aspectFill" />
+						<view class="bg-overlay"></view>
+					</swiper-item>
+				</swiper>
+			</view>
 
 			<!-- 爱心飘落效果 -->
 			<view class="falling-hearts">
 				<text v-for="i in 15" :key="i" class="heart" :style="getHeartStyle(i)">❤️</text>
+			</view>
+			
+			<!-- 背景加载遮罩 -->
+			<view v-if="loadingBg" class="bg-loading-mask">
+				<view class="loading-content">
+					<view class="loading-dots">
+						<view class="dot"></view>
+						<view class="dot"></view>
+						<view class="dot"></view>
+					</view>
+					<text class="loading-text">加载背景中...</text>
+				</view>
 			</view>
 		</view>
 
@@ -30,6 +56,7 @@
 						</view>
 					</view>
 					<text class="app-name">甜蜜记忆</text>
+					<text class="app-slogan">记录每一刻的甜蜜</text>
 				</view>
 			</view>
 
@@ -38,12 +65,12 @@
 				<view class="input-group">
 					<view class="input-box">
 						<view class="icon-wrapper">
-							<image class="input-icon" :src="imgInfo.icon_user" />
+							<image class="input-icon" :src="imgInfo.icon_user" mode="widthFix" />
 						</view>
 						<input type="text" v-model="username" placeholder="请输入用户账号" placeholder-class="placeholder"
 							@input="inputUsername" />
 						<view class="icon-wrapper" @tap="delUser">
-							<image v-if="username" class="clear-icon" :src="imgInfo.icon_del" />
+							<image v-if="username" class="clear-icon" :src="imgInfo.icon_del" mode="widthFix" />
 						</view>
 					</view>
 				</view>
@@ -51,12 +78,12 @@
 				<view class="input-group">
 					<view class="input-box">
 						<view class="icon-wrapper">
-							<image class="input-icon" :src="imgInfo.icon_pwd" />
+							<image class="input-icon" :src="imgInfo.icon_pwd" mode="widthFix" />
 						</view>
 						<input :type="pwdType" :value="userpwd" @input="inputPwd" placeholder="请输入密码"
 							placeholder-class="placeholder" />
 						<view class="icon-wrapper" @tap="switchPwd">
-							<image class="pwd-toggle-icon" :src="imgInfo.icon_pwd_switch" />
+							<image class="pwd-toggle-icon" :src="imgInfo.icon_pwd_switch" mode="widthFix" />
 						</view>
 					</view>
 				</view>
@@ -69,9 +96,6 @@
 						</view>
 						<text class="option-text">记住密码</text>
 					</view>
-					<!-- <view class="forgot-pwd" @tap="findPwd">
-						<text class="option-text">忘记密码？</text>
-					</view> -->
 				</view>
 
 				<!-- 登录按钮 -->
@@ -84,39 +108,16 @@
 				</button>
 
 				<!-- 注册引导 -->
-				<!-- 	<view class="register-guide">
+				<view class="register-guide">
 					<text class="guide-text">还没有账号？</text>
 					<text class="register-link" @tap="goReg">立即注册</text>
-				</view> -->
+				</view>
 
-				<!-- 分隔线 -->
-				<!-- 		<view class="divider">
-					<view class="divider-line"></view>
-					<text class="divider-text">其他方式登录</text>
-					<view class="divider-line"></view>
-				</view -->
-
-				<!-- 第三方登录 -->
-				<!-- 	<view class="third-login">
-					<view class="third-item" @tap="thirdLogin('qq')">
-						<view class="third-icon qq">
-							<image class="third-img" :src="imgInfo.qq" />
-						</view>
-						<text class="third-text">QQ</text>
-					</view>
-					<view class="third-item" @tap="thirdLogin('wechat')">
-						<view class="third-icon wechat">
-							<image class="third-img" :src="imgInfo.wechat" />
-						</view>
-						<text class="third-text">微信</text>
-					</view>
-					<view class="third-item" @tap="thirdLogin('weibo')">
-						<view class="third-icon weibo">
-							<image class="third-img" :src="imgInfo.weibo" />
-						</view>
-						<text class="third-text">微博</text>
-					</view>
-				</view> -->
+				<!-- 背景图切换按钮 -->
+				<view class="bg-switch" @tap="refreshBackground" :class="{ 'disabled': loadingBg }">
+					<image class="refresh-icon" :src="imgInfo.refresh" mode="widthFix" />
+					<text class="refresh-text">{{ loadingBg ? '加载中...' : '换张背景' }}</text>
+				</view>
 			</view>
 		</view>
 	</view>
@@ -136,22 +137,23 @@
 				pwdType: 'password',
 				rememberMe: false,
 				loading: false,
-				bgImages: [
+				loadingBg: false, // 背景图加载状态
+				bgLoadFailed: false, // 背景图加载失败
+				networkBgImage: 'http://127.0.0.1:8000/media/loginBackgroundImg/2026/01/06/bk.jpeg', // 网络背景图URL
+				networkBgImages: [], // 所有网络背景图数组
+				currentBgIndex: 0, // 当前背景图索引
+				defaultBgImages: [
 					isUni ? '/static/bg1.jpg' : require('./images/bg1.jpg'),
 					isUni ? '/static/bg2.jpg' : require('./images/bg2.jpg'),
 					isUni ? '/static/bg3.jpg' : require('./images/bg3.jpg'),
 					isUni ? '/static/bg4.jpg' : require('./images/bg4.jpg')
 				],
 				imgInfo: {
-					// head: isUni ? '/static/head.png' : require('./images/head.png'),
-					head: isUni ? './images/lixun.gif' : require('./images/head.png'),
 					icon_user: isUni ? '/static/icon_user.png' : require('./images/icon_user.png'),
 					icon_del: isUni ? '/static/icon_del.png' : require('./images/icon_del.png'),
 					icon_pwd: isUni ? '/static/icon_pwd.png' : require('./images/icon_pwd.png'),
 					icon_pwd_switch: isUni ? '/static/icon_pwd_switch.png' : require('./images/icon_pwd_switch.png'),
-					qq: isUni ? '/static/qq.png' : require('./images/qq.png'),
-					wechat: isUni ? '/static/wechat.png' : require('./images/wechat.png'),
-					weibo: isUni ? '/static/weibo.png' : require('./images/weibo.png')
+					refresh: isUni ? '/static/refresh.png' : require('./images/refresh.png')
 				}
 			}
 		},
@@ -162,21 +164,125 @@
 		},
 		onLoad() {
 			this.loadRememberedData()
+			this.fetchBackgroundImage() // 加载网络背景图
 		},
 		methods: {
+			// 获取网络背景图片
+			async fetchBackgroundImage() {
+				if (this.loadingBg) return
+				
+				this.loadingBg = true
+				this.bgLoadFailed = false
+
+				try {
+					// 这里调用您的API接口获取背景图
+					const response = await request({
+						url: `${cfg.base_url}/api/loginImg/`, // 您的背景图API
+						method: "GET",
+						timeout: 8000 // 增加超时时间
+					})
+					
+					console.log('背景图API响应:', response)
+					
+					if (response && response.results && response.results.length > 0) {
+						// 提取所有图片URL
+						const images = response.results.map(item => {
+							// 确保URL是完整的（如果不是完整URL，则添加基础URL）
+							if (item.image && item.image.startsWith('http')) {
+								return item.image
+							} else if (item.image) {
+								return `${cfg.base_url}${item.image.startsWith('/') ? '' : '/'}${item.image}`
+							}
+							return null
+						}).filter(url => url !== null)
+						
+						if (images.length > 0) {
+							this.networkBgImages = images
+							// 设置第一张图片
+							this.networkBgImage = images[0]
+							console.log('设置背景图URL:', this.networkBgImage)
+							
+							// 不需要预加载，image标签会自动加载
+						} else {
+							throw new Error('未获取到有效的图片URL')
+						}
+					} else {
+						throw new Error('API返回数据格式错误或为空')
+					}
+				} catch (error) {
+					console.error('加载网络背景图失败:', error)
+					this.bgLoadFailed = true
+					this.networkBgImage = ''
+					this.networkBgImages = []
+
+					// 失败后显示默认背景
+					uni.showToast({
+						title: '使用默认背景',
+						icon: 'none',
+						duration: 1500
+					})
+				} finally {
+					// 延迟隐藏loading，确保图片有足够时间开始加载
+					setTimeout(() => {
+						this.loadingBg = false
+					}, 500)
+				}
+			},
+
+			// 网络背景图加载成功
+			onNetworkBgLoad() {
+				console.log('网络背景图加载成功')
+				this.bgLoadFailed = false
+			},
+
+			// 网络背景图加载失败
+			onNetworkBgError() {
+				console.error('网络背景图加载失败')
+				this.bgLoadFailed = true
+				this.networkBgImage = ''
+			},
+
+			// 刷新背景图
+			async refreshBackground() {
+				if (this.loadingBg) return
+				
+				// 如果有多个网络背景图，切换到下一张
+				if (this.networkBgImages.length > 1) {
+					this.currentBgIndex = (this.currentBgIndex + 1) % this.networkBgImages.length
+					this.networkBgImage = this.networkBgImages[this.currentBgIndex]
+					uni.showToast({
+						title: '切换背景',
+						icon: 'none',
+						duration: 1000
+					})
+				} else {
+					// 否则重新获取
+					this.networkBgImage = ''
+					this.fetchBackgroundImage()
+					uni.showToast({
+						title: '获取新背景中...',
+						icon: 'none',
+						duration: 1000
+					})
+				}
+			},
+
 			getHeartStyle(index) {
-				// 随机生成爱心飘落样式
+				// 生成更自然的爱心飘落样式
 				const left = Math.random() * 100
 				const duration = 3 + Math.random() * 4
 				const delay = Math.random() * 5
 				const size = 20 + Math.random() * 20
+				const opacity = 0.2 + Math.random() * 0.3
+				const rotate = Math.random() * 360
 
 				return {
 					left: `${left}%`,
 					animationDuration: `${duration}s`,
 					animationDelay: `${delay}s`,
 					fontSize: `${size}rpx`,
-					opacity: 0.3 + Math.random() * 0.4
+					opacity: opacity,
+					transform: `rotate(${rotate}deg)`
 				}
 			},
 
@@ -219,23 +325,27 @@
 				this.loading = true
 				uni.showLoading({
 					title: '登录中...'
-				});
-				const result = await request({
-					url: `${cfg.base_url}/login/in/`,
-					method: "POST",
-					data: {
-						username: this.username,
-						password: this.userpwd,
-					},
-					timeout: 2000
-				}).then(res => { // 请求成功，这里判断密码是否正确
-					if (res.code === 200) {
+				})
+
+				try {
+					const result = await request({
+						url: `${cfg.base_url}/login/in/`,
+						method: "POST",
+						data: {
+							username: this.username,
+							password: this.userpwd,
+						},
+						timeout: 2000
+					})
+
+					if (result.code === 200) {
 						// 登录成功
 						uni.showToast({
 							title: '登录成功',
 							icon: 'success',
 							duration: 1500
 						})
+
 						// 保存记住密码
 						if (this.rememberMe) {
 							uni.setStorageSync('rememberedLogin', {
@@ -245,60 +355,51 @@
 						} else {
 							uni.removeStorageSync('rememberedLogin')
 						}
-						// 2. 保存用户认证信息
-						if (res.token) {
-							uni.setStorageSync('token', res.token);
+
+						// 保存用户认证信息
+						if (result.token) {
+							uni.setStorageSync('token', result.token)
 						}
-						if (res.username) {
-							uni.setStorageSync('username', res.username);
+						if (result.username) {
+							uni.setStorageSync('username', result.username)
+						}
+						if (result.id) {
+							uni.setStorageSync('id', result.id)
 						}
 
-						// const token = uni.getStorageSync('token');
-						// console.log('Token:', token);
-						uni.switchTab({
-							url: "/pages/index/index",
-							success() {
-								console.log("跳转成功");
-							},
-							fail(err) {
-								console.log("跳转失败:",err);
-							}
-						})
+						// 跳转到首页
+						setTimeout(() => {
+							uni.switchTab({
+								url: "/pages/index/index",
+								success() {
+									console.log("跳转成功")
+								},
+								fail(err) {
+									console.log("跳转失败:", err)
+								}
+							})
+						}, 1500)
 					} else {
 						uni.showToast({
 							title: '用户名或密码错误',
 							icon: "error",
 							duration: 1500
 						})
-						console.log(res.data);
 					}
-				}).catch(error => { // 请求失败，直接报网络异常
+				} catch (error) {
 					console.error('网络异常:', error)
 					uni.showToast({
 						title: '网络异常，请重试',
 						icon: 'none'
 					})
-				}).finally(fin => {
+				} finally {
 					this.loading = false
-				});
-			},
-
-			findPwd() {
-				uni.navigateTo({
-					url: '/pages/find-pwd/find-pwd'
-				})
+				}
 			},
 
 			goReg() {
 				uni.navigateTo({
 					url: '/pages/reg/reg'
-				})
-			},
-
-			thirdLogin(type) {
-				uni.showToast({
-					title: `${type}登录功能开发中`,
-					icon: 'none'
 				})
 			}
 		}
@@ -306,421 +407,573 @@
 </script>
 
 <style lang="scss" scoped>
-	.page_login {
-		height: 100vh;
-		position: relative;
-		overflow: hidden;
-	}
+.page_login {
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
 
-	// 背景轮播样式
-	.slider-background {
-		position: absolute;
-		width: 100%;
-		height: 100%;
-		z-index: 1;
+// 修复背景区域
+.slider-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    
+    // 网络背景图 - 使用image标签
+    .network-background-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        animation: fadeIn 0.8s ease-out;
+        z-index: 1;
+    }
+    
+    .network-bg-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg,
+                rgba(252, 44, 93, 0.4),
+                rgba(255, 107, 139, 0.3),
+                rgba(255, 142, 83, 0.25));
+        backdrop-filter: blur(1px);
+        z-index: 2;
+    }
+    
+    // 默认背景轮播
+    .default-background {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 1;
+        
+        .background-swiper {
+            width: 100%;
+            height: 100%;
+            
+            .bg-image {
+                width: 100%;
+                height: 100%;
+                display: block;
+            }
+            
+            .bg-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, rgba(252, 44, 93, 0.3), rgba(255, 107, 139, 0.2));
+                z-index: 2;
+            }
+        }
+    }
+    
+    // 爱心飘落效果
+    .falling-hearts {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 3;
+        
+        .heart {
+            position: absolute;
+            top: -50rpx;
+            animation: falling linear infinite;
+            color: #ff6b8b;
+            text-shadow: 0 2rpx 10rpx rgba(255, 107, 139, 0.3);
+            will-change: transform;
+        }
+    }
+    
+    // 背景加载遮罩
+    .bg-loading-mask {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 4;
+        
+        .loading-content {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40rpx 60rpx;
+            border-radius: 20rpx;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            
+            .loading-dots {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-bottom: 20rpx;
+                
+                .dot {
+                    width: 20rpx;
+                    height: 20rpx;
+                    border-radius: 50%;
+                    background: linear-gradient(45deg, #ff6b8b, #ff8e53);
+                    margin: 0 10rpx;
+                    animation: bounce 1.4s infinite ease-in-out both;
+                    
+                    &:nth-child(1) {
+                        animation-delay: -0.32s;
+                    }
+                    
+                    &:nth-child(2) {
+                        animation-delay: -0.16s;
+                    }
+                }
+            }
+            
+            .loading-text {
+                font-size: 28rpx;
+                color: #333;
+                font-weight: 500;
+            }
+        }
+    }
+}
 
-		.background-swiper {
-			width: 100%;
-			height: 100%;
+// 登录卡片
+.login-card {
+    position: relative;
+    z-index: 10;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 50rpx;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(15rpx);
+    -webkit-backdrop-filter: blur(15rpx);
+}
 
-			.bg-image {
-				width: 100%;
-				height: 100%;
-			}
+// Logo样式
+.head {
+    text-align: center;
+    margin-bottom: 60rpx;
 
-			.bg-overlay {
-				position: absolute;
-				top: 0;
-				left: 0;
-				width: 100%;
-				height: 100%;
-				background: linear-gradient(135deg, rgba(252, 44, 93, 0.3), rgba(255, 107, 139, 0.2));
-			}
-		}
+    .logo-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
 
-		.falling-hearts {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-			pointer-events: none;
+        .logo-circle {
+            width: 160rpx;
+            height: 160rpx;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b8b, #ff8e53);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30rpx;
+            box-shadow: 0 20rpx 40rpx rgba(255, 107, 139, 0.4);
+            animation: float 3s ease-in-out infinite;
+            position: relative;
 
-			.heart {
-				position: absolute;
-				top: -50rpx;
-				animation: falling linear infinite;
-				color: #ff6b8b;
-			}
-		}
-	}
+            &::after {
+                content: '';
+                position: absolute;
+                top: -5rpx;
+                left: -5rpx;
+                right: -5rpx;
+                bottom: -5rpx;
+                border-radius: 50%;
+                background: linear-gradient(45deg, #ff6b8b, #ff8e53);
+                z-index: -1;
+                filter: blur(15rpx);
+                opacity: 0.6;
+            }
 
-	// 登录卡片
-	.login-card {
-		position: relative;
-		z-index: 2;
-		height: 100%;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		padding: 0 50rpx;
-		background: rgba(255, 255, 255, 0.95);
-		backdrop-filter: blur(20rpx);
-	}
+            .logo-inner {
+                width: 130rpx;
+                height: 130rpx;
+                border-radius: 50%;
+                background: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: inset 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
 
-	// Logo样式
-	.head {
-		text-align: center;
-		margin-bottom: 60rpx;
+                .gx-heart {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
 
-		.logo-container {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
+                    .g-letter {
+                        font-size: 38rpx;
+                        font-weight: 900;
+                        color: #ff6b8b;
+                        transform: rotate(-10deg);
+                        text-shadow: 2rpx 2rpx 0 #ff3b6d;
+                    }
 
-			.logo-circle {
-				width: 140rpx;
-				height: 140rpx;
-				border-radius: 50%;
-				background: linear-gradient(45deg, #ff6b8b, #ff8e53);
-				display: flex;
-				align-items: center;
-				justify-content: center;
-				margin-bottom: 30rpx;
-				box-shadow: 0 20rpx 40rpx rgba(255, 107, 139, 0.4);
-				animation: float 3s ease-in-out infinite;
+                    .heart-dot {
+                        font-size: 20rpx;
+                        color: #ff3b6d;
+                        margin: 0 4rpx;
+                        animation: pulse 1.5s infinite;
+                    }
 
-				.logo-inner {
-					width: 110rpx;
-					height: 110rpx;
-					border-radius: 50%;
-					background: white;
-					display: flex;
-					align-items: center;
-					justify-content: center;
+                    .x-letter {
+                        font-size: 38rpx;
+                        font-weight: 900;
+                        color: #ff6b8b;
+                        transform: rotate(10deg);
+                        text-shadow: 2rpx 2rpx 0 #ff3b6d;
+                    }
+                }
+            }
+        }
 
-					.head_logo {
-						width: 55rpx;
-						height: 65rpx;
-					}
-				}
-			}
+        .app-name {
+            font-size: 48rpx;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10rpx;
+            letter-spacing: 2rpx;
+        }
 
-			.app-name {
-				font-size: 48rpx;
-				font-weight: bold;
-				color: #333;
-				margin-bottom: 10rpx;
-			}
+        .app-slogan {
+            font-size: 28rpx;
+            color: #666;
+            opacity: 0.8;
+        }
+    }
+}
 
-			.app-slogan {
-				font-size: 28rpx;
-				color: #666;
-			}
-		}
-	}
+// 表单样式
+.login_form {
+	
+	
+    .input-group {
+        margin-bottom: 40rpx;
 
-	// 表单样式
-	.login_form {
-		.input-group {
-			margin-bottom: 40rpx;
+        .input-box {
+            display: flex;
+            align-items: center;
+            height: 90rpx;
+            background: rgba(248, 249, 250, 0.9);
+            border-radius: 45rpx;
+            padding: 0 30rpx;
+            border: 2rpx solid transparent;
+            transition: all 0.3s;
 
-			.input-box {
-				display: flex;
-				align-items: center;
-				height: 90rpx;
-				background: #f8f9fa;
-				border-radius: 45rpx;
-				padding: 0 30rpx;
-				border: 2rpx solid transparent;
-				transition: all 0.3s;
+            &:focus-within {
+                border-color: #ff6b8b;
+                background: white;
+                box-shadow: 0 10rpx 30rpx rgba(255, 107, 139, 0.15);
+                transform: translateY(-2rpx);
+            }
 
-				&:focus-within {
-					border-color: #ff6b8b;
-					background: white;
-					box-shadow: 0 10rpx 30rpx rgba(255, 107, 139, 0.1);
-				}
+            .icon-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 40rpx;
 
-				.icon-wrapper {
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					width: 40rpx;
+                .input-icon {
+                    width: 30rpx;
+                    height: 30rpx;
+                    opacity: 0.8;
+                }
 
-					.input-icon {
-						width: 30rpx;
-						height: 30rpx;
-					}
+                .clear-icon {
+                    width: 26rpx;
+                    height: 26rpx;
+                    opacity: 0.6;
+                    transition: opacity 0.3s;
 
-					.clear-icon {
-						width: 26rpx;
-						height: 26rpx;
-					}
+                    &:active {
+                        opacity: 1;
+                    }
+                }
 
-					.pwd-toggle-icon {
-						width: 35rpx;
-						height: 15rpx;
-					}
-				}
+                .pwd-toggle-icon {
+                    width: 35rpx;
+                    height: 15rpx;
+                    opacity: 0.8;
+                }
+            }
 
-				input {
-					flex: 1;
-					height: 100%;
-					margin: 0 20rpx;
-					font-size: 32rpx;
-					color: #333;
-					background: transparent;
-				}
+            input {
+                flex: 1;
+                height: 100%;
+                margin: 0 20rpx;
+                font-size: 32rpx;
+                color: #333;
+                background: transparent;
+                font-weight: 500;
+            }
 
-				.placeholder {
-					color: #999;
-					font-size: 30rpx;
-				}
-			}
-		}
+            .placeholder {
+                color: #999;
+                font-size: 30rpx;
+            }
+        }
+    }
 
-		.login-options {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 60rpx;
+    .login-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 60rpx;
 
-			.remember-me,
-			.forgot-pwd {
-				display: flex;
-				align-items: center;
+        .remember-me {
+            display: flex;
+            align-items: center;
 
-				.checkbox {
-					width: 36rpx;
-					height: 36rpx;
-					border: 2rpx solid #ddd;
-					border-radius: 8rpx;
-					margin-right: 16rpx;
-					display: flex;
-					align-items: center;
-					justify-content: center;
+            .checkbox {
+                width: 36rpx;
+                height: 36rpx;
+                border: 2rpx solid #ddd;
+                border-radius: 8rpx;
+                margin-right: 16rpx;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s;
 
-					&.checked {
-						background: #ff6b8b;
-						border-color: #ff6b8b;
+                &.checked {
+                    background: linear-gradient(45deg, #ff6b8b, #ff8e53);
+                    border-color: transparent;
+                    transform: scale(1.1);
 
-						.check-icon {
-							color: white;
-							font-size: 24rpx;
-							font-weight: bold;
-						}
-					}
-				}
+                    .check-icon {
+                        color: white;
+                        font-size: 24rpx;
+                        font-weight: bold;
+                    }
+                }
+            }
 
-				.option-text {
-					font-size: 28rpx;
-					color: #666;
-				}
-			}
+            .option-text {
+                font-size: 28rpx;
+                color: #666;
+            }
+        }
+    }
 
-			.forgot-pwd .option-text {
-				color: #ff6b8b;
-			}
-		}
+    .login-btn {
+        height: 90rpx;
+        line-height: 90rpx;
+        border-radius: 45rpx;
+        background: linear-gradient(90deg, #ff6b8b, #ff8e53);
+        color: white;
+        font-size: 36rpx;
+        font-weight: 600;
+        border: none;
+        margin-bottom: 40rpx;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
 
-		.login-btn {
-			height: 90rpx;
-			line-height: 90rpx;
-			border-radius: 45rpx;
-			background: linear-gradient(90deg, #ff6b8b, #ff8e53);
-			color: white;
-			font-size: 36rpx;
-			font-weight: 600;
-			border: none;
-			margin-bottom: 40rpx;
-			transition: all 0.3s;
+        &::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
 
-			&:active {
-				transform: scale(0.98);
-			}
+        &:active {
+            transform: scale(0.98);
 
-			&.disabled {
-				opacity: 0.6;
-			}
+            &::before {
+                left: 100%;
+            }
+        }
 
-			.loading {
-				display: flex;
-				align-items: center;
-				justify-content: center;
+        &.disabled {
+            opacity: 0.6;
+        }
 
-				.loading-spinner {
-					width: 36rpx;
-					height: 36rpx;
-					border: 4rpx solid white;
-					border-top-color: transparent;
-					border-radius: 50%;
-					margin-right: 20rpx;
-					animation: spin 1s linear infinite;
-				}
-			}
-		}
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-		.register-guide {
-			text-align: center;
-			margin-bottom: 50rpx;
+            .loading-spinner {
+                width: 36rpx;
+                height: 36rpx;
+                border: 4rpx solid white;
+                border-top-color: transparent;
+                border-radius: 50%;
+                margin-right: 20rpx;
+                animation: spin 1s linear infinite;
+            }
+        }
+    }
 
-			.guide-text {
-				font-size: 28rpx;
-				color: #666;
-			}
+    .register-guide {
+        text-align: center;
+        margin-bottom: 50rpx;
 
-			.register-link {
-				font-size: 28rpx;
-				color: #ff6b8b;
-				margin-left: 10rpx;
-				font-weight: 600;
-			}
-		}
+        .guide-text {
+            font-size: 28rpx;
+            color: #666;
+        }
 
-		.divider {
-			display: flex;
-			align-items: center;
-			margin-bottom: 50rpx;
+        .register-link {
+            font-size: 28rpx;
+            color: #ff6b8b;
+            margin-left: 10rpx;
+            font-weight: 600;
+            position: relative;
 
-			.divider-line {
-				flex: 1;
-				height: 1rpx;
-				background: #e5e5e5;
-			}
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: -4rpx;
+                left: 0;
+                width: 100%;
+                height: 2rpx;
+                background: linear-gradient(90deg, #ff6b8b, #ff8e53);
+                transform: scaleX(0);
+                transition: transform 0.3s;
+            }
 
-			.divider-text {
-				padding: 0 30rpx;
-				font-size: 24rpx;
-				color: #999;
-			}
-		}
+            &:active::after {
+                transform: scaleX(1);
+            }
+        }
+    }
 
-		.third-login {
-			display: flex;
-			justify-content: center;
-			gap: 80rpx;
+    // 背景切换按钮
+    .bg-switch {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 30rpx;
+        padding: 20rpx;
+        border-radius: 30rpx;
+        background: rgba(255, 255, 255, 0.7);
+        transition: all 0.3s;
+        
+        &:not(.disabled):active {
+            background: rgba(255, 255, 255, 0.9);
+            transform: scale(0.95);
+        }
+        
+        &.disabled {
+            opacity: 0.6;
+        }
 
-			.third-item {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
+        .refresh-icon {
+            width: 32rpx;
+            height: 32rpx;
+            margin-right: 10rpx;
+            opacity: 0.7;
+        }
 
-				.third-icon {
-					width: 100rpx;
-					height: 100rpx;
-					border-radius: 50%;
-					display: flex;
-					align-items: center;
-					justify-content: center;
-					margin-bottom: 20rpx;
-					transition: transform 0.3s;
+        .refresh-text {
+            font-size: 26rpx;
+            color: #666;
+        }
+    }
+}
 
-					&:active {
-						transform: scale(0.95);
-					}
+// 动画定义
+@keyframes falling {
+    0% {
+        transform: translateY(-50rpx) rotate(0deg);
+        opacity: 0;
+    }
 
-					&.qq {
-						background: linear-gradient(135deg, #12B7F5, #1AAD19);
-					}
+    10% {
+        opacity: 1;
+    }
 
-					&.wechat {
-						background: linear-gradient(135deg, #09BB07, #1AAD19);
-					}
+    90% {
+        opacity: 0.8;
+    }
 
-					&.weibo {
-						background: linear-gradient(135deg, #E6162D, #FF9933);
-					}
+    100% {
+        transform: translateY(calc(100vh + 50rpx)) rotate(360deg);
+        opacity: 0;
+    }
+}
 
-					.third-img {
-						width: 50rpx;
-						height: 50rpx;
-					}
-				}
+@keyframes float {
 
-				.third-text {
-					font-size: 24rpx;
-					color: #666;
-				}
-			}
-		}
-	}
+    0%,
+    100% {
+        transform: translateY(0);
+    }
 
-	// 动画定义
-	@keyframes falling {
-		0% {
-			transform: translateY(-50rpx) rotate(0deg);
-			opacity: 0;
-		}
+    50% {
+        transform: translateY(-20rpx);
+    }
+}
 
-		10% {
-			opacity: 1;
-		}
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
 
-		90% {
-			opacity: 0.8;
-		}
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
 
-		100% {
-			transform: translateY(calc(100vh + 50rpx)) rotate(360deg);
-			opacity: 0;
-		}
-	}
+    to {
+        opacity: 1;
+    }
+}
 
-	@keyframes float {
+@keyframes pulse {
 
-		0%,
-		100% {
-			transform: translateY(0);
-		}
+    0%,
+    100% {
+        transform: scale(1);
+    }
 
-		50% {
-			transform: translateY(-20rpx);
-		}
-	}
+    50% {
+        transform: scale(1.2);
+    }
+}
 
-	@keyframes spin {
-		to {
-			transform: rotate(360deg);
-		}
-	}
+@keyframes bounce {
 
-	.logo-inner {
-		width: 110rpx;
-		height: 110rpx;
-		border-radius: 50%;
-		background: white;
-		display: flex;
-		align-items: center;
-		justify-content: center;
+    0%,
+    80%,
+    100% {
+        transform: scale(0);
+    }
 
-		.gx-heart {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', sans-serif;
+    40% {
+        transform: scale(1);
+    }
+}
 
-			.g-letter {
-				font-size: 32rpx;
-				font-weight: 900;
-				color: #ff6b8b;
-				transform: rotate(-10deg);
-				text-shadow: 1rpx 1rpx 0 #ff3b6d;
-			}
-
-			.heart-dot {
-				font-size: 16rpx;
-				color: #ff3b6d;
-				margin: 0 2rpx;
-				animation: pulse 1.5s infinite;
-			}
-
-			.x-letter {
-				font-size: 32rpx;
-				font-weight: 900;
-				color: #ff6b8b;
-				transform: rotate(10deg);
-				text-shadow: 1rpx 1rpx 0 #ff3b6d;
-			}
-		}
-	}
+/* 调试样式 - 如果仍有问题，可以暂时启用 */
+/*
+.debug-border {
+    border: 2rpx solid red !important;
+}
+*/
 </style>

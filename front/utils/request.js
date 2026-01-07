@@ -1,5 +1,5 @@
 // utils/request.js
-const request = (options) => { // request
+const request =    (options) => { // request
   const defaultOptions = {
     timeout: 2000,
     header: {

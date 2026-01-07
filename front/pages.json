@@ -25,6 +25,12 @@
 				"navigationStyle": "custom", // 隐藏导航栏
 				"backgroundColor": "#FFFFFF"
 			}
+		},
+		{
+			"path": "pages/detailPic/detailPic",
+			"style": {
+				"navigationBarTitleText": "相册"
+			}
 		}
 
 	],

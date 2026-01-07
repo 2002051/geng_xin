@@ -1,6 +1,6 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from .models import Album, Photo
-from .album_utils.ser_ import AlbumSerializer, PhotoSerializer,AlbumListSerializer
+from album.ser_ import AlbumSerializer, PhotoSerializer,AlbumListSerializer
 from .album_utils.pagination_ import AlbumPagination
 from utils.auth import LoginAuth
 
@@ -17,13 +17,12 @@ class AlbumViewSet(viewsets.ModelViewSet):
 
 
 class AlbumListViewSet(viewsets.ModelViewSet):
+    queryset = Album.objects
     authentication_classes = [LoginAuth]
     serializer_class = AlbumListSerializer
     pagination_class = AlbumPagination  # 添加分页器
     def get_queryset(self):
-        print(1231223)
-
-        return Album.objects.filter(user=self.request.user)
+        return super().get_queryset().filter(user=self.request.user)
 
 
 class PhotoViewSet(viewsets.ModelViewSet):

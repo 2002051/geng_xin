@@ -206,7 +206,7 @@
             
             goToAlbum(albumId) {
                 uni.navigateTo({
-                    url: `/pages/album/detail?id=${albumId}`,
+                    url: `/pages/detailPic/detailPic?id=${albumId}`,
                     animationType: 'slide-in-right'
                 });
             },

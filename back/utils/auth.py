@@ -14,13 +14,18 @@ class LoginAuth(BaseAuthentication):
             # 预检不进行权限校验
             return
         jwt_token = request.headers.get("token")
-        verified_payload = jwt.decode(jwt_token, settings.SECRET_KEY, algorithms="HS256")
-        exp = verified_payload.pop("exp")
-        user = models.Guser.objects.filter(**verified_payload).first()
-        if user:
-            return user,jwt_token
-
-        raise AuthenticationFailed("请先登录")
+        if not jwt_token:
+            raise AuthenticationFailed("请先登录。")
+        try:
+            verified_payload = jwt.decode(jwt_token, settings.SECRET_KEY, algorithms="HS256")
+            exp = verified_payload.pop("exp")
+            user = models.Guser.objects.filter(**verified_payload).first()
+            if user:
+                return user,jwt_token
+        except:
+            raise AuthenticationFailed("登录过期")
+        finally:
+            print(f"auth success!")
 
     def authenticate_header(self, request):
         return "API"

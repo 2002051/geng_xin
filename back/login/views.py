@@ -1,13 +1,13 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-import sys
-from login.log_utils import serializers_
+from rest_framework.viewsets import GenericViewSet
+from rest_framework.mixins import UpdateModelMixin, RetrieveModelMixin,ListModelMixin
+from .models import Guser
+from login.ser_ import LoginSerializer,GUserSerializer
 from rest_framework.permissions import AllowAny
-from rest_framework_simplejwt.tokens import RefreshToken
-from back.utils.res_ import MineAPIView
 from rest_framework import status
 import datetime
-
+from utils.auth import LoginAuth
 # Create your views here.HTTP_200_OK
 from tools.jwt_ import get_jwt
 
@@ -17,7 +17,7 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        ser = serializers_.LoginSerializer(data=request.data)
+        ser = LoginSerializer(data=request.data)
 
         # if ser.is_valid(raise_exception=True):
         if ser.is_valid():
@@ -33,7 +33,8 @@ class LoginView(APIView):
             token = get_jwt(payload=payload)
             return Response({
                 "code": 200,
-                "username":username,
+                "id":Guser.objects.get(username=username).id,
+                "username": username,
                 'message': '登录成功',
                 'token': token
             }, status=status.HTTP_200_OK)
@@ -41,3 +42,10 @@ class LoginView(APIView):
             "code": 400,
             'message': '用户名或密码错误',
         }, status=status.HTTP_200_OK)
+
+
+class GuserViewSet(ListModelMixin,RetrieveModelMixin,UpdateModelMixin,GenericViewSet):
+    queryset = Guser.objects
+    authentication_classes = [LoginAuth]
+    serializer_class = GUserSerializer
+    # def get_queryset(self):

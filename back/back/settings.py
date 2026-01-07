@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     "login.apps.LoginConfig",  # 登录模块
     "album.apps.AlbumConfig",  # 相册模块
+    "appsetting.apps.AppsettingConfig", # 应用界面配置
     "rest_framework",
 ]
 
