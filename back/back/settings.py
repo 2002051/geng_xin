@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-3ira1w_$0_i2dbmovld@6_@70o0@-*r)1k(9y%8dvrq*unilhf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # 开发环境允许所有主机
+
 
 # Application definition
 
@@ -160,6 +161,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 # 设置上传文件的路径
-print(BASE_DIR)
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # 指定根目录
+

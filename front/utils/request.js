@@ -1,3 +1,4 @@
+const successCodes = [200, 201, 202, 203, 204];
 // utils/request.js
 const request =    (options) => { // request
   const defaultOptions = {
@@ -11,7 +12,7 @@ const request =    (options) => { // request
       ...defaultOptions,
       ...options,
       success: (res) => {
-        if (res.statusCode === 200) { // 请求成功
+        if (successCodes.includes(res.statusCode)) { // 请求成功
           resolve(res.data);
         } else {
           reject(new Error(`HTTP ${res.statusCode}`));

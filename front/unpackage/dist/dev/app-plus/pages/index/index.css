@@ -1,0 +1,281 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.album-container[data-v-1cf27b2a] {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  padding: 0.625rem;
+  position: relative;
+}
+.album-grid[data-v-1cf27b2a] {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.625rem;
+}
+.album-card[data-v-1cf27b2a] {
+  background: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+.album-card[data-v-1cf27b2a]:active {
+  transform: translateY(-0.125rem);
+  box-shadow: 0 0.375rem 1.25rem rgba(0, 0, 0, 0.12);
+}
+.album-cover-container[data-v-1cf27b2a] {
+  position: relative;
+  width: 100%;
+  height: 10rem;
+  overflow: hidden;
+  background: linear-gradient(45deg, #f5f7fa, #e4efe9);
+}
+.album-cover-container .album-cover-image[data-v-1cf27b2a] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.album-cover-container:hover .album-cover-image[data-v-1cf27b2a] {
+  transform: scale(1.05);
+}
+.album-cover-placeholder[data-v-1cf27b2a] {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ccc;
+}
+.album-cover-placeholder .placeholder-text[data-v-1cf27b2a] {
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+  color: #999;
+}
+.photo-count-badge[data-v-1cf27b2a] {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(0.3125rem);
+          backdrop-filter: blur(0.3125rem);
+  border-radius: 0.625rem;
+  padding: 0.1875rem 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.1875rem;
+}
+.photo-count-badge .count-text[data-v-1cf27b2a] {
+  font-size: 0.6875rem;
+  color: white;
+  font-weight: 500;
+}
+.privacy-badge[data-v-1cf27b2a] {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+}
+.privacy-badge.public[data-v-1cf27b2a] {
+  background: rgba(76, 175, 80, 0.9);
+  color: white;
+}
+.privacy-badge.private[data-v-1cf27b2a] {
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+}
+.album-info[data-v-1cf27b2a] {
+  padding: 0.75rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.album-name[data-v-1cf27b2a] {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #333;
+  line-height: 1.4;
+  margin-bottom: 0.375rem;
+  font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.album-detail[data-v-1cf27b2a] {
+  font-size: 0.8125rem;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  flex: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: "PingFang SC", "Helvetica Neue", sans-serif;
+}
+.no-detail[data-v-1cf27b2a] {
+  font-size: 0.8125rem;
+  color: #999;
+  font-style: italic;
+  margin-bottom: 0.5rem;
+  flex: 1;
+}
+.album-meta[data-v-1cf27b2a] {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+  padding-top: 0.5rem;
+  border-top: 0.03125rem solid #f0f0f0;
+}
+.meta-item[data-v-1cf27b2a] {
+  display: flex;
+  align-items: center;
+  gap: 0.1875rem;
+}
+.meta-item .meta-text[data-v-1cf27b2a] {
+  font-size: 0.6875rem;
+  color: #999;
+}
+.empty-state[data-v-1cf27b2a] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3.75rem 1.25rem;
+}
+.empty-state .empty-image[data-v-1cf27b2a] {
+  width: 9.375rem;
+  height: 9.375rem;
+  opacity: 0.6;
+}
+.empty-state .empty-title[data-v-1cf27b2a] {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #666;
+  margin-top: 1.25rem;
+}
+.empty-state .empty-subtitle[data-v-1cf27b2a] {
+  font-size: 0.875rem;
+  color: #999;
+  margin-top: 0.5rem;
+}
+.empty-state .create-button[data-v-1cf27b2a] {
+  margin-top: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 1.5625rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+}
+.empty-state .create-button[data-v-1cf27b2a]:active {
+  opacity: 0.9;
+}
+.loading-state[data-v-1cf27b2a] {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 0;
+}
+.fab-container[data-v-1cf27b2a] {
+  position: fixed;
+  bottom: 4.6875rem;
+  right: 1.25rem;
+  z-index: 1000;
+}
+.fab-button[data-v-1cf27b2a] {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 1.5625rem;
+  padding: 0.625rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 0.25rem 1rem rgba(102, 126, 234, 0.4);
+  border: none;
+}
+.fab-button[data-v-1cf27b2a]:active {
+  transform: scale(0.95);
+}
+
+/* 响应式调整 */
+@media (max-width: 750rpx) {
+.album-grid[data-v-1cf27b2a] {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+.album-cover-container[data-v-1cf27b2a] {
+    height: 8.75rem;
+}
+.album-info[data-v-1cf27b2a] {
+    padding: 0.625rem;
+}
+.album-name[data-v-1cf27b2a] {
+    font-size: 0.9375rem;
+}
+.album-detail[data-v-1cf27b2a] {
+    font-size: 0.75rem;
+}
+}
+@media (min-width: 751rpx) {
+.album-grid[data-v-1cf27b2a] {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+}
+}
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+.album-container[data-v-1cf27b2a] {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+.album-card[data-v-1cf27b2a] {
+    background: #2d3748;
+    box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.3);
+}
+.album-name[data-v-1cf27b2a] {
+    color: #e2e8f0;
+}
+.album-detail[data-v-1cf27b2a] {
+    color: #a0aec0;
+}
+.no-detail[data-v-1cf27b2a] {
+    color: #718096;
+}
+.album-cover-container[data-v-1cf27b2a] {
+    background: linear-gradient(45deg, #2d3748, #4a5568);
+}
+}

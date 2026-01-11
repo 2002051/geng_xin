@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework import serializers
 from album.models import Album, Photo
 
@@ -18,7 +19,7 @@ class AlbumSerializer(serializers.ModelSerializer):
     class Meta:
         model = Album
         fields = ['id', 'name', 'detail', 'user', 'created_at',
-                  'updated_at', 'photos', 'photo_count']
+                  'updated_at', 'photos', 'photo_count',"cover_photo"]
         read_only_fields = ['created_at', 'updated_at', 'user']
 
 class AlbumListSerializer(serializers.ModelSerializer):
@@ -50,3 +51,18 @@ class AlbumListSerializer(serializers.ModelSerializer):
                 'order': first_photo.order
             }
         return None
+
+
+
+
+class PhotoUploadSerializer(serializers.ModelSerializer):
+    """照片上传专用序列化器（可以批量上传）"""
+
+    class Meta:
+        model = Photo
+        fields = ['image', 'title', 'description', 'order']
+        extra_kwargs = {
+            'title': {'required': False},
+            'description': {'required': False},
+            'order': {'required': False},
+        }

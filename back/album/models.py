@@ -8,6 +8,8 @@ class Album(models.Model):
     name = models.CharField('相册名称', max_length=100)
     detail = models.TextField('相册详情', blank=True, null=True)
 
+    cover_photo = models.ImageField('相册封面', upload_to='cover_photo/%Y/%m/',default="cover_photo/default.jpg")
+
     # 关联用户
     user = models.ForeignKey(Guser, on_delete=models.CASCADE, verbose_name='创建者')
 

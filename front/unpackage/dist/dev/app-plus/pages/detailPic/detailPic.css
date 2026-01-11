@@ -1,0 +1,463 @@
+/**
+ * 这里是uni-app内置的常用样式变量
+ *
+ * uni-app 官方扩展插件及插件市场（https://ext.dcloud.net.cn）上很多三方插件均使用了这些样式变量
+ * 如果你是插件开发者，建议你使用scss预处理，并在插件代码中直接使用这些变量（无需 import 这个文件），方便用户通过搭积木的方式开发整体风格一致的App
+ *
+ */
+/**
+ * 如果你是App开发者（插件使用者），你可以通过修改这些变量来定制自己的插件主题，实现自定义主题功能
+ *
+ * 如果你的项目同样使用了scss预处理，你也可以直接在你的 scss 代码中使用如下变量，同时无需 import 这个文件
+ */
+/* 颜色变量 */
+/* 行为相关颜色 */
+/* 文字基本颜色 */
+/* 背景颜色 */
+/* 边框颜色 */
+/* 尺寸变量 */
+/* 文字尺寸 */
+/* 图片尺寸 */
+/* Border Radius */
+/* 水平间距 */
+/* 垂直间距 */
+/* 透明度 */
+/* 文章场景相关 */
+.album-detail-container[data-v-cf1fa90b] {
+  min-height: 100vh;
+  background: #f5f7fa;
+  position: relative;
+}
+.nav-back[data-v-cf1fa90b] {
+  position: fixed;
+  top: 2.5rem;
+  left: 1rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  -webkit-backdrop-filter: blur(0.3125rem);
+          backdrop-filter: blur(0.3125rem);
+  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+}
+.nav-back[data-v-cf1fa90b]:active {
+  background: white;
+}
+.album-header[data-v-cf1fa90b] {
+  position: relative;
+  height: 15rem;
+  padding: 3.75rem 1.25rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+.album-header.with-cover[data-v-cf1fa90b] {
+  color: white;
+}
+.album-header[data-v-cf1fa90b]:not(.with-cover) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+.album-cover-background[data-v-cf1fa90b] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.album-cover-overlay[data-v-cf1fa90b] {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.7) 100%);
+}
+.album-header-content[data-v-cf1fa90b] {
+  position: relative;
+  z-index: 2;
+}
+.privacy-tag[data-v-cf1fa90b] {
+  align-self: flex-start;
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  -webkit-backdrop-filter: blur(0.3125rem);
+          backdrop-filter: blur(0.3125rem);
+}
+.privacy-tag.public[data-v-cf1fa90b] {
+  background: rgba(76, 175, 80, 0.8);
+  border: 0.03125rem solid rgba(255, 255, 255, 0.3);
+}
+.privacy-tag.private[data-v-cf1fa90b] {
+  background: rgba(244, 67, 54, 0.8);
+  border: 0.03125rem solid rgba(255, 255, 255, 0.3);
+}
+.album-title[data-v-cf1fa90b] {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0.0625rem 0.25rem rgba(0, 0, 0, 0.3);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.album-description[data-v-cf1fa90b] {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  opacity: 0.95;
+  margin-bottom: 1rem;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.album-no-description[data-v-cf1fa90b] {
+  font-size: 0.875rem;
+  opacity: 0.7;
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+.album-stats[data-v-cf1fa90b] {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.stat-item[data-v-cf1fa90b] {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 0.25rem 0.625rem;
+  border-radius: 0.625rem;
+  -webkit-backdrop-filter: blur(0.3125rem);
+          backdrop-filter: blur(0.3125rem);
+}
+.stat-text[data-v-cf1fa90b] {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.action-toolbar[data-v-cf1fa90b] {
+  background: white;
+  border-radius: 0.75rem 0.75rem 0 0;
+  margin-top: -0.75rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-around;
+  box-shadow: 0 -0.125rem 0.625rem rgba(0, 0, 0, 0.05);
+  position: relative;
+  z-index: 10;
+}
+.action-item[data-v-cf1fa90b] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+.action-item[data-v-cf1fa90b]:active {
+  opacity: 0.6;
+}
+.action-text[data-v-cf1fa90b] {
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 500;
+}
+.photo-section[data-v-cf1fa90b] {
+  padding: 1rem;
+}
+.section-header[data-v-cf1fa90b] {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.section-title[data-v-cf1fa90b] {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #333;
+}
+.photo-count[data-v-cf1fa90b] {
+  font-size: 0.875rem;
+  color: #666;
+  font-weight: 500;
+}
+.photo-grid[data-v-cf1fa90b] {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+}
+.photo-item[data-v-cf1fa90b] {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: #f0f0f0;
+}
+.photo-item[data-v-cf1fa90b]:active {
+  opacity: 0.9;
+}
+.photo-image[data-v-cf1fa90b] {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.photo-item:active .photo-image[data-v-cf1fa90b] {
+  transform: scale(1.05);
+}
+.photo-overlay[data-v-cf1fa90b] {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+  padding: 0.75rem 0.5rem 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.photo-item:active .photo-overlay[data-v-cf1fa90b] {
+  opacity: 1;
+}
+.photo-name[data-v-cf1fa90b] {
+  display: block;
+  font-size: 0.6875rem;
+  color: white;
+  font-weight: 500;
+  margin-bottom: 0.125rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.photo-date[data-v-cf1fa90b] {
+  display: block;
+  font-size: 0.625rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+.selection-marker[data-v-cf1fa90b] {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: 0.0625rem solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-backdrop-filter: blur(0.3125rem);
+          backdrop-filter: blur(0.3125rem);
+}
+.selection-marker.selected[data-v-cf1fa90b] {
+  background: #667eea;
+  border-color: #667eea;
+}
+.empty-photos[data-v-cf1fa90b] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.5rem 1.25rem;
+}
+.empty-photos .empty-photo-image[data-v-cf1fa90b] {
+  width: 8.75rem;
+  height: 8.75rem;
+  opacity: 0.5;
+}
+.empty-photos .empty-photo-title[data-v-cf1fa90b] {
+  font-size: 1rem;
+  color: #666;
+  margin-top: 1rem;
+  font-weight: 600;
+}
+.empty-photos .empty-photo-subtitle[data-v-cf1fa90b] {
+  font-size: 0.8125rem;
+  color: #999;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+.empty-photos .upload-button[data-v-cf1fa90b] {
+  margin-top: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 1.5625rem;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+}
+.empty-photos .upload-button[data-v-cf1fa90b]:active {
+  opacity: 0.9;
+}
+.photo-loading[data-v-cf1fa90b] {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem 0;
+}
+.batch-action-bar[data-v-cf1fa90b] {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -0.125rem 0.625rem rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+.selected-count[data-v-cf1fa90b] {
+  font-size: 0.875rem;
+  color: #333;
+  font-weight: 600;
+}
+.batch-actions[data-v-cf1fa90b] {
+  display: flex;
+  gap: 0.5rem;
+}
+.batch-action-btn[data-v-cf1fa90b] {
+  padding: 0.5rem 1rem;
+  border-radius: 1.5625rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border: none;
+}
+.batch-action-btn.delete[data-v-cf1fa90b] {
+  background: #ff4444;
+  color: white;
+}
+.batch-action-btn.download[data-v-cf1fa90b] {
+  background: #667eea;
+  color: white;
+}
+.batch-action-btn[data-v-cf1fa90b]:active {
+  opacity: 0.9;
+}
+.bottom-action-bar[data-v-cf1fa90b] {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  z-index: 1000;
+}
+.select-btn[data-v-cf1fa90b] {
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(0.3125rem);
+          backdrop-filter: blur(0.3125rem);
+  border-radius: 1.5625rem;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #333;
+  border: none;
+  box-shadow: 0 0.25rem 1rem rgba(0, 0, 0, 0.1);
+}
+.select-btn[data-v-cf1fa90b]:active {
+  background: white;
+}
+.upload-fab[data-v-cf1fa90b] {
+  width: 3.125rem;
+  height: 3.125rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  box-shadow: 0 0.25rem 1rem rgba(102, 126, 234, 0.4);
+}
+.upload-fab[data-v-cf1fa90b]:active {
+  transform: scale(0.95);
+}
+.loading-overlay[data-v-cf1fa90b] {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+/* 暗色模式适配 */
+@media (prefers-color-scheme: dark) {
+.album-detail-container[data-v-cf1fa90b] {
+    background: #1a1a2e;
+}
+.nav-back[data-v-cf1fa90b] {
+    background: rgba(45, 55, 72, 0.9);
+}
+.action-toolbar[data-v-cf1fa90b] {
+    background: #2d3748;
+}
+.action-text[data-v-cf1fa90b] {
+    color: #a0aec0;
+}
+.photo-section[data-v-cf1fa90b] {
+    background: transparent;
+}
+.section-title[data-v-cf1fa90b] {
+    color: #e2e8f0;
+}
+.photo-count[data-v-cf1fa90b] {
+    color: #a0aec0;
+}
+.photo-item[data-v-cf1fa90b] {
+    background: #4a5568;
+}
+.batch-action-bar[data-v-cf1fa90b] {
+    background: #2d3748;
+}
+.selected-count[data-v-cf1fa90b] {
+    color: #e2e8f0;
+}
+.select-btn[data-v-cf1fa90b] {
+    background: rgba(45, 55, 72, 0.9);
+    color: #e2e8f0;
+}
+}
+/* 响应式调整 */
+@media (max-width: 750rpx) {
+.photo-grid[data-v-cf1fa90b] {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.1875rem;
+}
+.album-header[data-v-cf1fa90b] {
+    height: 13.75rem;
+    padding: 3.125rem 1rem 1rem;
+}
+.album-title[data-v-cf1fa90b] {
+    font-size: 1.3125rem;
+}
+}
+@media (min-width: 751rpx) {
+.photo-grid[data-v-cf1fa90b] {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.375rem;
+}
+.album-header[data-v-cf1fa90b] {
+    height: 16.25rem;
+}
+.album-title[data-v-cf1fa90b] {
+    font-size: 1.75rem;
+}
+}

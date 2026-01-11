@@ -1,7 +1,8 @@
 from django.urls import path
-from album.views import AlbumViewSet, PhotoViewSet, AlbumListViewSet
+from album.views import AlbumViewSet, PhotoViewSet, AlbumListViewSet,SimplePhotoUploadView
 
 urlpatterns = [
+    path("uploadPhoto/",SimplePhotoUploadView.as_view()),
     path("", AlbumViewSet.as_view({
         "get": "list",  # 获取列表
         "post": "create"  # 创建
