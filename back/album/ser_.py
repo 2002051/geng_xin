@@ -24,33 +24,33 @@ class AlbumSerializer(serializers.ModelSerializer):
 
 class AlbumListSerializer(serializers.ModelSerializer):
     # 获取列表
-    cover_photo = serializers.SerializerMethodField()
+    # cover_photo = serializers.SerializerMethodField()
     photo_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Album
         fields = ['id', 'name', 'detail', 'user', 'created_at',
-                  'updated_at', 'cover_photo', 'photo_count']
+                  'updated_at', 'cover_photo', 'photo_count',"is_public","cover_photo"]
         read_only_fields = ['created_at', 'updated_at', 'user']
 
-    def get_cover_photo(self, obj):
-        """获取相册的第一张照片"""
-        first_photo = obj.photos.first()  # 获取第一张照片
-        if first_photo:
-            # 创建一个简化的照片数据
-            request = self.context.get('request')
-            image_url = first_photo.image.url if first_photo.image else None
-
-            if image_url and request:
-                image_url = request.build_absolute_uri(image_url)
-
-            return {
-                'id': first_photo.id,
-                'title': first_photo.title,
-                'image_url': image_url,
-                'order': first_photo.order
-            }
-        return None
+    # def get_cover_photo(self, obj):
+    #     """获取相册的第一张照片"""
+    #     first_photo = obj.photos.first()  # 获取第一张照片
+    #     if first_photo:
+    #         # 创建一个简化的照片数据
+    #         request = self.context.get('request')
+    #         image_url = first_photo.image.url if first_photo.image else None
+    #
+    #         if image_url and request:
+    #             image_url = request.build_absolute_uri(image_url)
+    #
+    #         return {
+    #             'id': first_photo.id,
+    #             'title': first_photo.title,
+    #             'image_url': image_url,
+    #             'order': first_photo.order
+    #         }
+    #     return None
 
 
 

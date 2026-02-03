@@ -10,13 +10,14 @@ from album.ser_ import AlbumSerializer, PhotoSerializer,AlbumListSerializer,Phot
 from .album_utils.pagination_ import AlbumPagination
 from utils.auth import LoginAuth
 from django.shortcuts import get_object_or_404
-
+from django.db.models import Q
+from login.models import Guser
 class AlbumViewSet(viewsets.ModelViewSet):
     authentication_classes = [LoginAuth]
     serializer_class = AlbumSerializer
     # filter_backends = []
     def get_queryset(self):
-        return Album.objects.filter(user=self.request.user)
+        return Album.objects.all()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -27,8 +28,13 @@ class AlbumListViewSet(viewsets.ModelViewSet):
     authentication_classes = [LoginAuth]
     serializer_class = AlbumListSerializer
     pagination_class = AlbumPagination  # 添加分页器
+    """获取列表"""
     def get_queryset(self):
-        return super().get_queryset().filter(user=self.request.user)
+        user = Guser.objects.filter(username=self.request.user.username).get()
+        queryset = super().get_queryset().filter(
+            Q(user=user) | Q(is_public=True)
+        )
+        return queryset
 
 
 

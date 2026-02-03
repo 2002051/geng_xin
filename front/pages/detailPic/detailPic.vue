@@ -1,5 +1,4 @@
 <template>
-
 	<view class="album-detail-container">
 		<!-- 返回按钮 -->
 		<!--     <view class="nav-back" @click="goBack">
@@ -142,12 +141,12 @@
 		<!-- 底部操作栏 -->
 		<view v-if="!selectionMode" class="bottom-action-bar">
 			<button class="select-btn" @click="enterSelectionMode">
-				<uni-icons type="checkbox" size="28"></uni-icons>
-				<text>选择</text>
+				<uni-icons type="checkbox" size="28" color="#333"></uni-icons>
+				<text class="select-text">选择</text>
 			</button>
 
-			<button class="upload-fab" @click="uploadPhotos">+
-				<uni-icons type="contact" size="30"></uni-icons>
+			<button class="upload-fab" @click="uploadPhotos">
+				<uni-icons type="plusempty" size="40" color="#fff"></uni-icons>
 			</button>
 		</view>
 
@@ -1064,6 +1063,8 @@
 			font-size: 28rpx;
 			font-weight: 600;
 			border: none;
+			height: auto;
+			line-height: normal;
 
 			&:active {
 				opacity: 0.9;
@@ -1108,6 +1109,8 @@
 		font-size: 26rpx;
 		font-weight: 600;
 		border: none;
+		height: auto;
+		line-height: normal;
 
 		&.delete {
 			background: #ff4444;
@@ -1138,15 +1141,24 @@
 		background: rgba(255, 255, 255, 0.9);
 		backdrop-filter: blur(10rpx);
 		border-radius: 50rpx;
-		padding: 16rpx 32rpx;
+		padding: 0 32rpx;
 		display: flex;
 		align-items: center;
+		justify-content: center;
 		gap: 8rpx;
 		font-size: 28rpx;
 		font-weight: 600;
 		color: #333;
 		border: none;
 		box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
+		height: 80rpx;
+		line-height: 80rpx;
+		white-space: nowrap;
+
+		.select-text {
+			font-size: 28rpx;
+			font-weight: 600;
+		}
 
 		&:active {
 			background: white;
@@ -1163,6 +1175,7 @@
 		justify-content: center;
 		border: none;
 		box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.4);
+		padding: 0;
 
 		&:active {
 			transform: scale(0.95);
@@ -1227,6 +1240,10 @@
 		.select-btn {
 			background: rgba(45, 55, 72, 0.9);
 			color: #e2e8f0;
+			
+			.select-text {
+				color: #e2e8f0;
+			}
 		}
 	}
 
@@ -1244,6 +1261,27 @@
 
 		.album-title {
 			font-size: 42rpx;
+		}
+		
+		.bottom-action-bar {
+			bottom: 30rpx;
+			right: 30rpx;
+		}
+		
+		.select-btn {
+			height: 70rpx;
+			line-height: 70rpx;
+			padding: 0 28rpx;
+			font-size: 26rpx;
+			
+			.select-text {
+				font-size: 26rpx;
+			}
+		}
+		
+		.upload-fab {
+			width: 90rpx;
+			height: 90rpx;
 		}
 	}
 
