@@ -253,10 +253,10 @@
                     }
                     
                     const result = await request({
-                        url: `${cfg.base_url}/profiles/${this.userId}/`,
+                        url: `${cfg.base_url}/login/profiles/${this.userId}/`,
                         method: 'GET',
                         header: {
-                            'Authorization': `Token ${token}`,
+                            'token': `${token}`,
                             'Content-Type': 'application/json'
                         }
                     });

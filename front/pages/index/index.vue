@@ -111,7 +111,7 @@
 
 					<!-- 相册描述 -->
 					<view class="form-item">
-						<text class="form-label">相册描述（可选）</text>
+						<text class="form-label">相册描述（必选）</text>
 						<textarea v-model="formData.detail" class="form-textarea" placeholder="请输入相册描述..."
 							placeholder-class="placeholder" maxlength="100" auto-height @focus="onInputFocus"
 							@blur="onInputBlur" />
@@ -122,14 +122,14 @@
 
 					<!-- 封面图片上传 -->
 					<view class="form-item cover-upload-item">
-						<text class="form-label">相册封面（可选）</text>
+						<text class="form-label">相册封面（必选）</text>
 						<view class="cover-upload-container">
 							<!-- 上传区域 -->
 							<view class="cover-upload-area" @click="chooseCoverImage"
-								:class="{ 'has-cover': formData.cover_photo }">
+								:class="{ 'has-cover': pre_cover }">
 								<!-- 已选择封面时的预览 -->
-								<view v-if="formData.cover_photo" class="cover-preview">
-									<image :src="formData.cover_photo" class="cover-image" mode="aspectFill" />
+								<view v-if="pre_cover" class="cover-preview">
+									<image :src="pre_cover" class="cover-image" mode="aspectFill" />
 									<view class="cover-overlay">
 										<uni-icons type="camera-filled" size="40" color="#fff"></uni-icons>
 										<text class="cover-hint">更换封面</text>
@@ -145,7 +145,7 @@
 							</view>
 
 							<!-- 封面操作按钮 -->
-							<view v-if="formData.cover_photo" class="cover-actions">
+							<view v-if="pre_cover" class="cover-actions">
 								<view class="cover-action-btn preview-btn" @click="previewCover">
 									<uni-icons type="eye" size="24" color="#666"></uni-icons>
 									<text>预览</text>
@@ -234,8 +234,9 @@
 					detail: '',
 					is_public: true,
 					cover_photo: '',
-					user: uni.getStorageInfoSync("username")
+					user: uni.getStorageSync("token")
 				},
+				pre_cover: "", // 图片预览
 				formFocus: false,
 				submitting: false,
 				keyboardHeight: 0
@@ -273,8 +274,40 @@
 					});
 
 					if (res.tempFilePaths.length > 0) {
-						this.formData.cover_photo = res.tempFilePaths[0];
+						this.pre_cover = res.tempFilePaths[0];
+						const tempFilePath = res.tempFilePaths[0];
 						// 这里可以添加图片压缩或上传逻辑
+						const uploadRes = await uni.uploadFile({
+							url: `${cfg.base_url}/album/upload/cover/`, // 你的后端接口
+							name: 'cover_photo', // 后端接收的字段名
+							filePath: tempFilePath,
+							method: "POST",
+							// formData: {
+							// 	cover_photo: tempFilePath,
+							// 	// 这里会自动添加 token 等认证信息（如果有）
+							// },
+							header: {
+								// 如果需要认证
+								'token': `${uni.getStorageSync('token')}`
+							}
+						});
+						if (uploadRes.statusCode === 200 || uploadRes.statusCode === 201) {
+							const uploadResult = JSON.parse(uploadRes.data);
+							const imagePath = uploadResult.image_path;
+							if (!imagePath) {
+								uni.hideLoading();
+								uni.showToast({
+									title: '上传失败',
+									icon: 'none'
+								});
+								return;
+							}
+							this.formData.cover_photo = imagePath;
+						}
+
+
+
+
 					}
 				} catch (error) {
 					console.error('选择图片失败:', error);
@@ -327,7 +360,8 @@
 					} else {
 						this.albumList = [...this.albumList, ...(result.results || result)];
 					}
-
+					console.log("成功加载")
+					console.log(this.albumList)
 					// 判断是否还有更多数据
 					this.hasMore = result.next !== null && result.next !== undefined;
 
@@ -383,42 +417,47 @@
 
 			// 提交相册表单
 			async submitAlbumForm() {
-				console.log("111111")
+				console.log(this.formData)
 				if (!this.formValid || this.submitting) return;
 
 				this.submitting = true;
-				console.log("222222")
-				try {
-					const token = uni.getStorageSync('token');
-					if (!token) {
-						throw new Error('请先登录');
-					}
+				console.log("开始提交")
 
-					// 如果有封面图片，需要先上传（这里需要根据你的后端接口实现）
-					let coverUrl = this.formData.cover_photo;
-					// 如果封面是本地路径，需要上传到服务器
-					if (coverUrl && !coverUrl.startsWith('http')) {
-						// 这里需要实现图片上传逻辑
-						// coverUrl = await this.uploadCoverImage(coverUrl);
-					}
-
-					const submitData = {
-						name: this.formData.name.trim(),
-						detail: this.formData.detail.trim(),
-						is_public: this.formData.is_public,
-						cover_photo: coverUrl || '' // 添加封面URL
-					};
-					
-					request()
-					
-					// ... 其他提交逻辑保持不变
-				} catch (error) {
-					console.error(error)
-					// ... 错误处理
-				} finally {
-					console.log("3333333")
-					this.submitting = false;
+				const token = uni.getStorageSync('token');
+				if (!token) {
+					throw new Error('请先登录');
 				}
+				const result = await request({
+					url: `${cfg.base_url}/album/`,
+					method: 'POST',
+					header: {
+						'token': `${token}`,
+						'Content-Type': 'application/json'
+					},
+					data: {
+						...this.formData
+					},
+					timeout: 10000
+				}).then(res => { // code 在request 的promise 对象内部已经消化掉了，这里只需要关注then 是成功，catch 是失败
+					uni.showToast({
+						title: "添加成功!",
+						icon: 'success',
+						duration: 1500,
+					})
+					this.albumList = [res, ...this.albumList];
+					this.resetForm();
+					this.showCreateForm = false
+
+				}).catch(e => {
+					console.log("ytw")
+					uni.showToast({
+						title: "请检查参数!",
+						icon: 'error',
+						duration: 1500,
+					})
+				});
+
+
 			},
 			// 重置表单
 			resetForm() {

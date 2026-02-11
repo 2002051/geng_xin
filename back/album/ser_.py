@@ -10,17 +10,41 @@ class PhotoSerializer(serializers.ModelSerializer):
         read_only_fields = ['uploaded_at']
         depth = 2
 
-
 class AlbumSerializer(serializers.ModelSerializer):
-    # 嵌套显示相册中的照片
     photos = PhotoSerializer(many=True, read_only=True)
     photo_count = serializers.IntegerField(read_only=True)
+    cover_photo = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = Album
         fields = ['id', 'name', 'detail', 'user', 'created_at',
-                  'updated_at', 'photos', 'photo_count',"cover_photo"]
+                  'updated_at', 'photos', 'photo_count', "cover_photo", "is_public"]
         read_only_fields = ['created_at', 'updated_at', 'user']
+
+    def to_representation(self, instance):
+        """
+        获取数据时：将相对路径拼接为完整URL
+        """
+        data = super().to_representation(instance)
+
+        # 处理 cover_photo 字段
+        if instance.cover_photo and hasattr(instance.cover_photo, 'url'):
+            request = self.context.get('request')
+            if request:
+                data['cover_photo'] = request.build_absolute_uri(instance.cover_photo.url)
+
+        return data
+
+    def create(self, validated_data):
+        """
+        创建时自动设置当前用户
+        注意：这里不需要检查 is_authenticated，因为认证已经通过了
+        """
+        request = self.context.get('request')
+        if request and request.user:
+            validated_data['user'] = request.user
+
+        return super().create(validated_data)
 
 class AlbumListSerializer(serializers.ModelSerializer):
     # 获取列表

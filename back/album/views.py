@@ -1,25 +1,34 @@
-from rest_framework import viewsets,status
+import os
+import uuid
+
+from rest_framework import viewsets, status
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.shortcuts import get_object_or_404
 from django.db.models import Max
+
+from back import settings
 from .models import Album, Photo
-from album.ser_ import AlbumSerializer, PhotoSerializer,AlbumListSerializer,PhotoUploadSerializer
+from album.ser_ import AlbumSerializer, PhotoSerializer, AlbumListSerializer, PhotoUploadSerializer
 from .album_utils.pagination_ import AlbumPagination
 from utils.auth import LoginAuth
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from login.models import Guser
+
+
 class AlbumViewSet(viewsets.ModelViewSet):
     authentication_classes = [LoginAuth]
     serializer_class = AlbumSerializer
+
     # filter_backends = []
     def get_queryset(self):
         return Album.objects.all()
 
     def perform_create(self, serializer):
+
         serializer.save(user=self.request.user)
 
 
@@ -29,13 +38,13 @@ class AlbumListViewSet(viewsets.ModelViewSet):
     serializer_class = AlbumListSerializer
     pagination_class = AlbumPagination  # 添加分页器
     """获取列表"""
+
     def get_queryset(self):
         user = Guser.objects.filter(username=self.request.user.username).get()
         queryset = super().get_queryset().filter(
             Q(user=user) | Q(is_public=True)
         )
         return queryset
-
 
 
 class PhotoViewSet(viewsets.ModelViewSet):
@@ -125,3 +134,54 @@ class SimplePhotoUploadView(APIView):
             'title': photo.title,
             'uploaded_at': photo.uploaded_at
         })
+
+
+class AlbumCoverImageUploadView(APIView):
+    authentication_classes = [LoginAuth]
+
+    def post(self, request):
+        image_file = request.FILES.get("cover_photo")
+        print(image_file)
+        if not image_file:
+            return Response({'error': '请选择图片文件'}, status=400)
+        allowed_types = ['image/jpeg', 'image/png', 'image/gif']
+        max_size = 20 * 1024 * 1024  # 5MB
+        print(image_file.content_type)
+        if image_file.content_type not in allowed_types:
+            return Response(
+                {'error': '只支持JPEG、PNG、GIF格式'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if image_file.size > max_size:
+            return Response(
+                {'error': f'图片大小不能超过20MB,你的有{image_file.size / 1024 / 1024}MB'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        from datetime import datetime
+
+        # 生成文件路径（按年月组织）
+        today = datetime.now()
+        year_month = today.strftime("%Y/%m")
+
+        # 生成唯一文件名
+        ext = os.path.splitext(image_file.name)[1]
+        filename = f"{uuid.uuid4().hex}{ext}"
+        filepath = f"cover_photo/{year_month}/{filename}"
+
+        # 确保目录存在
+        full_path = os.path.join(settings.MEDIA_ROOT, f"cover_photo/{year_month}")
+        os.makedirs(full_path, exist_ok=True)
+
+        # 保存文件
+        save_path = os.path.join(full_path, filename)
+        with open(save_path, 'wb+') as destination:
+            for chunk in image_file.chunks():
+                destination.write(chunk)
+
+        # 返回文件路径（相对MEDIA_ROOT的路径）
+        return Response({
+            'success': True,
+            'image_path': filepath,
+            'full_url': request.build_absolute_uri(settings.MEDIA_URL + filepath)
+        }, status=status.HTTP_201_CREATED)

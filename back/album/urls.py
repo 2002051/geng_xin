@@ -1,5 +1,5 @@
 from django.urls import path
-from album.views import AlbumViewSet, PhotoViewSet, AlbumListViewSet,SimplePhotoUploadView
+from album.views import AlbumViewSet, PhotoViewSet, AlbumListViewSet,SimplePhotoUploadView,AlbumCoverImageUploadView
 
 urlpatterns = [
     path("uploadPhoto/",SimplePhotoUploadView.as_view()),
@@ -24,4 +24,5 @@ urlpatterns = [
         "delete": "destroy"  # 删除
     }), name="photo-detail"),
     path("list/", AlbumListViewSet.as_view({"get": "list"})),
+    path("upload/cover/",AlbumCoverImageUploadView.as_view()), # 上传图片
 ]

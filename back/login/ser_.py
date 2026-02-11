@@ -41,7 +41,12 @@ class GUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Guser
-        fields = ['id','username', 'gender', 'signature', 'avatar','created_at']
+        fields = [
+            'id', 'username', 'gender',
+            'avatar', 'avatar', 'signature',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'username', 'created_at', 'updated_at']
 
     def validate_signature(self, value):
         """验证个性签名"""

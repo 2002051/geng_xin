@@ -1,10 +1,10 @@
 <template>
 	<view class="album-detail-container">
 		<!-- 返回按钮 -->
-		<!--     <view class="nav-back" @click="goBack">
-            <uni-icons type="arrowleft" size="32" color="#333"></uni-icons>
-        </view>
-        -->
+		<view class="nav-back" @click="goBack">
+			<uni-icons type="arrowleft" size="32" color="#333"></uni-icons>
+		</view>
+
 		<!-- 相册头部信息 -->
 		<view class="album-header" :class="{'with-cover': album.cover_photo}">
 			<!-- 封面背景图 -->
@@ -13,11 +13,13 @@
 
 			<!-- 相册信息 -->
 			<view class="album-header-content">
-				<!-- 公开/私密标签 -->
-				<!--     <view class="privacy-tag" :class="{'public': album.is_public, 'private': !album.is_public}">
-                    {{ album.is_public ? '公开相册' : '私密相册' }}
-                </view>
-                -->
+				<!-- 公开/私密标签（大标签，暂时隐藏） -->
+				<!--
+				<view class="privacy-tag" :class="{'public': album.is_public, 'private': !album.is_public}">
+					{{ album.is_public ? '公开相册' : '私密相册' }}
+				</view>
+				-->
+
 				<!-- 相册名称 -->
 				<text class="album-title">{{ album.name }}</text>
 
@@ -31,19 +33,19 @@
 
 				<!-- 相册统计信息 -->
 				<view class="album-stats">
-					<!--  <view class="stat-item">
-                        <uni-icons type="camera-filled" size="28" color="#fff"></uni-icons>
-                        <text class="stat-text">{{ album.photo_count || 0 }} 张照片</text>
-                    </view>
-                    -->
 					<view class="stat-item">
 						<uni-icons type="calendar" size="28" color="#fff"></uni-icons>
 						<text class="stat-text">{{ formatDate(album.created_at) }}</text>
 					</view>
 
-					<view class="stat-item" v-if="album.user && album.user.username">
+					<view class="stat-item album-owner" v-if="album.user">
 						<uni-icons type="person" size="28" color="#fff"></uni-icons>
-						<text class="stat-text">{{ album.user.username }}</text>
+						<text class="stat-text">{{ album.user.username || '未知用户' }}</text>
+						<!-- 在用户信息旁边添加公开/私密图标 -->
+						<view class="privacy-badge" :class="{'public': album.is_public, 'private': !album.is_public}"
+							@click="showPrivacyInfo">
+							<uni-icons :type="album.is_public ? 'eye' : 'eye-slash'" size="16" color="#fff"></uni-icons>
+						</view>
 					</view>
 				</view>
 			</view>
@@ -56,7 +58,7 @@
 				<text class="action-text">添加照片</text>
 			</view>
 
-			<view class="action-item" @click="editAlbum">
+			<view class="action-item" @click="showEditForm = true">
 				<uni-icons type="compose" size="32" color="#667eea"></uni-icons>
 				<text class="action-text">编辑相册</text>
 			</view>
@@ -150,6 +152,69 @@
 			</button>
 		</view>
 
+		<!-- 编辑相册弹窗 -->
+		<view v-if="showEditForm" class="edit-album-modal">
+			<view class="modal-mask" @click="closeEditForm"></view>
+			<view class="modal-content">
+				<view class="modal-header">
+					<text class="modal-title">编辑相册</text>
+					<uni-icons type="close" size="32" color="#999" @click="closeEditForm"></uni-icons>
+				</view>
+
+				<view class="modal-body">
+					<view class="form-item">
+						<text class="form-label">相册名称</text>
+						<input class="form-input" type="text" placeholder="请输入相册名称" v-model="editForm.name"
+							maxlength="100" />
+						<text class="char-count">{{ editForm.name.length }}/100</text>
+					</view>
+
+					<view class="form-item">
+						<text class="form-label">相册描述</text>
+						<textarea class="form-textarea" placeholder="请输入相册描述" v-model="editForm.detail"
+							maxlength="200"></textarea>
+						<text class="char-count">{{ editForm.detail.length }}/200</text>
+					</view>
+
+					<view class="form-item">
+						<text class="form-label">封面图片</text>
+						<view class="cover-upload-area" @click="selectCoverImage">
+							<view v-if="tempCoverPath || album.cover_photo" class="cover-preview">
+								<image class="cover-image" :src="tempCoverPath || album.cover_photo" mode="aspectFill">
+								</image>
+								<view class="cover-overlay">
+									<text class="cover-change-text">点击更换</text>
+								</view>
+							</view>
+							<view v-else class="cover-empty">
+								<uni-icons type="image" size="48" color="#ccc"></uni-icons>
+								<text class="empty-text">选择封面图片</text>
+								<text class="empty-tip">支持 JPG/PNG 格式</text>
+							</view>
+						</view>
+					</view>
+
+					<view class="form-item">
+						<text class="form-label">访问权限</text>
+						<view class="privacy-switch">
+							<view class="switch-label">
+								<text>设为公开相册</text>
+								<text class="switch-description">其他用户可以看到这个相册</text>
+							</view>
+							<switch :checked="editForm.is_public" @change="onPrivacyChange" color="#667eea" />
+						</view>
+					</view>
+				</view>
+
+				<view class="modal-footer">
+					<button class="modal-btn cancel" @click="closeEditForm">取消</button>
+					<button class="modal-btn confirm" @click="saveAlbumEdit" :disabled="saving">
+						{{ saving ? '保存中...' : '保存' }}
+					</button>
+				</view>
+			</view>
+		</view>
+
 		<!-- 加载动画 -->
 		<view v-if="loading" class="loading-overlay">
 			<uni-load-more status="loading" :icon-size="48"></uni-load-more>
@@ -160,6 +225,8 @@
 <script>
 	import request from "@/utils/request.js"
 	import cfg from "@/common/cfg.js"
+	// 导入SCSS样式文件
+	import './album-detail.scss'
 
 	export default {
 		data() {
@@ -174,7 +241,16 @@
 				photoHasMore: true,
 				photoLoadMoreStatus: 'more',
 				selectionMode: false,
-				selectedPhotos: []
+				selectedPhotos: [],
+				// 编辑相关数据
+				showEditForm: false, // 控制编辑表单显示
+				editForm: {
+					name: '',
+					detail: '',
+					is_public: true
+				},
+				tempCoverPath: null,
+				saving: false
 			};
 		},
 
@@ -219,7 +295,13 @@
 					});
 
 					this.album = result;
-					console.log("this.album:", this.album)
+					// 初始化编辑表单
+					this.editForm = {
+						name: result.name || '',
+						detail: result.detail || '',
+						is_public: result.is_public !== undefined ? result.is_public : true
+					};
+					console.log("相册详情:", this.album)
 				} catch (error) {
 					console.error('加载相册详情失败:', error);
 					uni.showToast({
@@ -242,27 +324,20 @@
 
 				try {
 					const token = uni.getStorageSync('token');
-					const params = {
-						page: this.photoPage,
-						page_size: this.photoPageSize,
-						// album_id: this.albumId
-					};
-
 					const result = await request({
 						url: `${cfg.base_url}/album/${this.albumId}/`,
 						method: 'GET',
 						header: {
 							'token': `${token}`,
 							'Content-Type': 'application/json'
-						},
-						// data: params
+						}
 					});
+					
 					if (isRefresh) {
 						this.photoList = result.photos || result;
 					} else {
 						this.photoList = [...this.photoList, ...(result.photos || result)];
 					}
-					console.log("ytwytw", this.photoList)
 
 					this.photoHasMore = result.next !== null && result.next !== undefined;
 
@@ -319,6 +394,140 @@
 					animationType: 'slide-out-left'
 				});
 			},
+
+			// 显示隐私信息提示
+			showPrivacyInfo() {
+				const privacyType = this.album.is_public ? '公开' : '私密';
+				const description = this.album.is_public ? 
+					'其他用户可以查看此相册' : 
+					'只有您自己可以查看此相册';
+				
+				uni.showToast({
+					title: `${privacyType}相册`,
+					icon: 'none',
+					duration: 2000
+				});
+			},
+
+			// 关闭编辑表单
+			closeEditForm() {
+				this.showEditForm = false;
+				// 重置表单
+				this.editForm = {
+					name: this.album.name || '',
+					detail: this.album.detail || '',
+					is_public: this.album.is_public !== undefined ? this.album.is_public : true
+				};
+				this.tempCoverPath = null;
+			},
+
+			// 隐私设置变化
+			onPrivacyChange(e) {
+				this.editForm.is_public = e.detail.value;
+			},
+
+			// 选择封面图片
+			selectCoverImage() {
+				uni.chooseImage({
+					count: 1,
+					sizeType: ['compressed'],
+					sourceType: ['album'],
+					success: (res) => {
+						this.tempCoverPath = res.tempFilePaths[0];
+					},
+					fail: (err) => {
+						console.error('选择图片失败:', err);
+					}
+				});
+			},
+
+			// 保存相册编辑
+			async saveAlbumEdit() {
+				if (!this.editForm.name.trim()) {
+					uni.showToast({
+						title: '请输入相册名称',
+						icon: 'none'
+					});
+					return;
+				}
+
+				this.saving = true;
+
+				try {
+					const updateData = {
+						name: this.editForm.name.trim(),
+						detail: this.editForm.detail.trim(),
+						is_public: this.editForm.is_public
+					};
+
+					// 如果有新封面图片，先上传
+					if (this.tempCoverPath) {
+						uni.showLoading({
+							title: '上传封面中...',
+							mask: true
+						});
+
+						try {
+							const token = uni.getStorageSync('token');
+							const uploadResult = await uni.uploadFile({
+								url: `${cfg.base_url}/album/upload/cover/`,
+								filePath: this.tempCoverPath,
+								name: 'cover_photo',
+								header: {
+									'token': token
+								}
+							});
+
+							if (uploadResult.statusCode === 200 || uploadResult.statusCode === 201) {
+								const data = JSON.parse(uploadResult.data);
+								// 这里保存图片路径，而不是完整的 URL
+								updateData.cover_photo = data.image_path;
+							}
+						} catch (error) {
+							console.error('封面上传失败:', error);
+							uni.showToast({
+								title: '封面上传失败',
+								icon: 'error'
+							});
+						} finally {
+							uni.hideLoading();
+						}
+					}
+					// 注意：如果没有选择新封面图片，就不发送 cover_photo 字段
+					// 这样后端会保持原有的封面图片不变
+
+					// 更新相册信息
+					const token = uni.getStorageSync('token');
+					await request({
+						url: `${cfg.base_url}/album/${this.albumId}/`,
+						method: 'PUT',
+						header: {
+							'token': `${token}`,
+							'Content-Type': 'application/json'
+						},
+						data: updateData
+					});
+
+					uni.showToast({
+						title: '修改成功',
+						icon: 'success'
+					});
+
+					// 关闭弹窗并刷新数据
+					this.closeEditForm();
+					this.loadAlbumDetail();
+
+				} catch (error) {
+					console.error('保存失败:', error);
+					uni.showToast({
+						title: '保存失败',
+						icon: 'error'
+					});
+				} finally {
+					this.saving = false;
+				}
+			},
+
 			uploadPhotos() {
 				const that = this; // 保存 this 引用
 
@@ -473,49 +682,6 @@
 							title: '选择图片失败',
 							icon: 'error'
 						});
-					}
-				});
-			},
-
-			editAlbum() {
-				uni.showModal({
-					title: '编辑相册',
-					content: '请输入新的相册名称',
-					editable: true,
-					placeholderText: this.album.name,
-					success: async (res) => {
-						if (res.confirm && res.content.trim()) {
-							try {
-								const token = uni.getStorageSync('token');
-								await request({
-									url: `${cfg.base_url}/album/${this.albumId}/`,
-									method: 'PUT',
-									header: {
-										'token': `${token}`,
-										'Content-Type': 'application/json'
-									},
-									data: {
-										name: res.content.trim(),
-										detail: this.album.detail,
-										is_public: this.album.is_public
-									}
-								});
-
-								uni.showToast({
-									title: '修改成功',
-									icon: 'success'
-								});
-
-								this.loadAlbumDetail();
-
-							} catch (error) {
-								console.error('修改失败:', error);
-								uni.showToast({
-									title: '修改失败',
-									icon: 'error'
-								});
-							}
-						}
 					}
 				});
 			},
@@ -694,8 +860,20 @@
 									icon: 'success'
 								});
 
+								// 删除成功后返回首页
 								setTimeout(() => {
-									uni.navigateBack();
+									// 跳转到首页
+									uni.switchTab({
+										url: '/pages/index/index',
+										success: () => {
+											console.log('成功跳转到首页');
+										},
+										fail: (err) => {
+											console.error('跳转失败:', err);
+											// 如果跳转失败，返回上一页
+											uni.navigateBack();
+										}
+									});
 								}, 1500);
 
 							} catch (error) {
@@ -755,548 +933,6 @@
 </script>
 
 <style lang="scss" scoped>
-	.album-detail-container {
-		min-height: 100vh;
-		background: #f5f7fa;
-		position: relative;
-	}
-
-	.nav-back {
-		position: fixed;
-		top: 80rpx;
-		left: 32rpx;
-		width: 72rpx;
-		height: 72rpx;
-		background: rgba(255, 255, 255, 0.9);
-		border-radius: 50%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 1000;
-		backdrop-filter: blur(10rpx);
-		box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.1);
-
-		&:active {
-			background: rgba(255, 255, 255, 1);
-		}
-	}
-
-	.album-header {
-		position: relative;
-		height: 480rpx;
-		padding: 120rpx 40rpx 40rpx;
-		display: flex;
-		flex-direction: column;
-		justify-content: flex-end;
-
-		&.with-cover {
-			color: white;
-		}
-
-		&:not(.with-cover) {
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			color: white;
-		}
-	}
-
-	.album-cover-background {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.album-cover-overlay {
-		position: absolute;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.7) 100%);
-	}
-
-	.album-header-content {
-		position: relative;
-		z-index: 2;
-	}
-
-	.privacy-tag {
-		align-self: flex-start;
-		padding: 8rpx 20rpx;
-		border-radius: 20rpx;
-		font-size: 24rpx;
-		font-weight: 600;
-		margin-bottom: 24rpx;
-		backdrop-filter: blur(10rpx);
-
-		&.public {
-			background: rgba(76, 175, 80, 0.8);
-			border: 1rpx solid rgba(255, 255, 255, 0.3);
-		}
-
-		&.private {
-			background: rgba(244, 67, 54, 0.8);
-			border: 1rpx solid rgba(255, 255, 255, 0.3);
-		}
-	}
-
-	.album-title {
-		font-size: 48rpx;
-		font-weight: 800;
-		line-height: 1.3;
-		margin-bottom: 16rpx;
-		text-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.3);
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 2;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.album-description {
-		font-size: 28rpx;
-		line-height: 1.6;
-		opacity: 0.95;
-		margin-bottom: 32rpx;
-		display: -webkit-box;
-		-webkit-box-orient: vertical;
-		-webkit-line-clamp: 3;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.album-no-description {
-		font-size: 28rpx;
-		opacity: 0.7;
-		font-style: italic;
-		margin-bottom: 32rpx;
-	}
-
-	.album-stats {
-		display: flex;
-		gap: 32rpx;
-		flex-wrap: wrap;
-	}
-
-	.stat-item {
-		display: flex;
-		align-items: center;
-		gap: 8rpx;
-		background: rgba(255, 255, 255, 0.2);
-		padding: 8rpx 20rpx;
-		border-radius: 20rpx;
-		backdrop-filter: blur(10rpx);
-	}
-
-	.stat-text {
-		font-size: 24rpx;
-		font-weight: 500;
-	}
-
-	.action-toolbar {
-		background: white;
-		border-radius: 24rpx 24rpx 0 0;
-		margin-top: -24rpx;
-		padding: 32rpx;
-		display: flex;
-		justify-content: space-around;
-		box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
-		position: relative;
-		z-index: 10;
-	}
-
-	.action-item {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 8rpx;
-
-		&:active {
-			opacity: 0.6;
-		}
-	}
-
-	.action-text {
-		font-size: 24rpx;
-		color: #666;
-		font-weight: 500;
-	}
-
-	.photo-section {
-		padding: 32rpx;
-	}
-
-	.section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin-bottom: 32rpx;
-	}
-
-	.section-title {
-		font-size: 36rpx;
-		font-weight: 700;
-		color: #333;
-	}
-
-	.photo-count {
-		font-size: 28rpx;
-		color: #666;
-		font-weight: 500;
-	}
-
-	.photo-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: 8rpx;
-	}
-
-	.photo-item {
-		position: relative;
-		aspect-ratio: 1;
-		border-radius: 16rpx;
-		overflow: hidden;
-		background: #f0f0f0;
-
-		&:active {
-			opacity: 0.9;
-		}
-	}
-
-	.photo-image {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-		transition: transform 0.3s ease;
-
-		.photo-item:active & {
-			transform: scale(1.05);
-		}
-	}
-
-	.photo-overlay {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
-		padding: 24rpx 16rpx 16rpx;
-		opacity: 0;
-		transition: opacity 0.3s ease;
-
-		.photo-item:active & {
-			opacity: 1;
-		}
-	}
-
-	.photo-name {
-		display: block;
-		font-size: 22rpx;
-		color: white;
-		font-weight: 500;
-		margin-bottom: 4rpx;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-	}
-
-	.photo-date {
-		display: block;
-		font-size: 20rpx;
-		color: rgba(255, 255, 255, 0.8);
-	}
-
-	.selection-marker {
-		position: absolute;
-		top: 16rpx;
-		right: 16rpx;
-		width: 40rpx;
-		height: 40rpx;
-		border-radius: 50%;
-		background: rgba(255, 255, 255, 0.3);
-		border: 2rpx solid white;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		backdrop-filter: blur(10rpx);
-
-		&.selected {
-			background: #667eea;
-			border-color: #667eea;
-		}
-	}
-
-	.empty-photos {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		padding: 80rpx 40rpx;
-
-		.empty-photo-image {
-			width: 280rpx;
-			height: 280rpx;
-			opacity: 0.5;
-		}
-
-		.empty-photo-title {
-			font-size: 32rpx;
-			color: #666;
-			margin-top: 32rpx;
-			font-weight: 600;
-		}
-
-		.empty-photo-subtitle {
-			font-size: 26rpx;
-			color: #999;
-			margin-top: 16rpx;
-			text-align: center;
-		}
-
-		.upload-button {
-			margin-top: 48rpx;
-			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-			color: white;
-			border-radius: 50rpx;
-			padding: 20rpx 40rpx;
-			font-size: 28rpx;
-			font-weight: 600;
-			border: none;
-			height: auto;
-			line-height: normal;
-
-			&:active {
-				opacity: 0.9;
-			}
-		}
-	}
-
-	.photo-loading {
-		display: flex;
-		justify-content: center;
-		padding: 80rpx 0;
-	}
-
-	.batch-action-bar {
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		right: 0;
-		background: white;
-		padding: 24rpx 32rpx;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.1);
-		z-index: 1000;
-	}
-
-	.selected-count {
-		font-size: 28rpx;
-		color: #333;
-		font-weight: 600;
-	}
-
-	.batch-actions {
-		display: flex;
-		gap: 16rpx;
-	}
-
-	.batch-action-btn {
-		padding: 16rpx 32rpx;
-		border-radius: 50rpx;
-		font-size: 26rpx;
-		font-weight: 600;
-		border: none;
-		height: auto;
-		line-height: normal;
-
-		&.delete {
-			background: #ff4444;
-			color: white;
-		}
-
-		&.download {
-			background: #667eea;
-			color: white;
-		}
-
-		&:active {
-			opacity: 0.9;
-		}
-	}
-
-	.bottom-action-bar {
-		position: fixed;
-		bottom: 40rpx;
-		right: 40rpx;
-		display: flex;
-		align-items: center;
-		gap: 20rpx;
-		z-index: 1000;
-	}
-
-	.select-btn {
-		background: rgba(255, 255, 255, 0.9);
-		backdrop-filter: blur(10rpx);
-		border-radius: 50rpx;
-		padding: 0 32rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 8rpx;
-		font-size: 28rpx;
-		font-weight: 600;
-		color: #333;
-		border: none;
-		box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.1);
-		height: 80rpx;
-		line-height: 80rpx;
-		white-space: nowrap;
-
-		.select-text {
-			font-size: 28rpx;
-			font-weight: 600;
-		}
-
-		&:active {
-			background: white;
-		}
-	}
-
-	.upload-fab {
-		width: 100rpx;
-		height: 100rpx;
-		border-radius: 50%;
-		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border: none;
-		box-shadow: 0 8rpx 32rpx rgba(102, 126, 234, 0.4);
-		padding: 0;
-
-		&:active {
-			transform: scale(0.95);
-		}
-	}
-
-	.loading-overlay {
-		position: fixed;
-		top: 0;
-		left: 0;
-		right: 0;
-		bottom: 0;
-		background: rgba(255, 255, 255, 0.9);
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		z-index: 2000;
-	}
-
-	/* 暗色模式适配 */
-	@media (prefers-color-scheme: dark) {
-		.album-detail-container {
-			background: #1a1a2e;
-		}
-
-		.nav-back {
-			background: rgba(45, 55, 72, 0.9);
-		}
-
-		.action-toolbar {
-			background: #2d3748;
-		}
-
-		.action-text {
-			color: #a0aec0;
-		}
-
-		.photo-section {
-			background: transparent;
-		}
-
-		.section-title {
-			color: #e2e8f0;
-		}
-
-		.photo-count {
-			color: #a0aec0;
-		}
-
-		.photo-item {
-			background: #4a5568;
-		}
-
-		.batch-action-bar {
-			background: #2d3748;
-		}
-
-		.selected-count {
-			color: #e2e8f0;
-		}
-
-		.select-btn {
-			background: rgba(45, 55, 72, 0.9);
-			color: #e2e8f0;
-			
-			.select-text {
-				color: #e2e8f0;
-			}
-		}
-	}
-
-	/* 响应式调整 */
-	@media (max-width: 750rpx) {
-		.photo-grid {
-			grid-template-columns: repeat(3, 1fr);
-			gap: 6rpx;
-		}
-
-		.album-header {
-			height: 440rpx;
-			padding: 100rpx 32rpx 32rpx;
-		}
-
-		.album-title {
-			font-size: 42rpx;
-		}
-		
-		.bottom-action-bar {
-			bottom: 30rpx;
-			right: 30rpx;
-		}
-		
-		.select-btn {
-			height: 70rpx;
-			line-height: 70rpx;
-			padding: 0 28rpx;
-			font-size: 26rpx;
-			
-			.select-text {
-				font-size: 26rpx;
-			}
-		}
-		
-		.upload-fab {
-			width: 90rpx;
-			height: 90rpx;
-		}
-	}
-
-	@media (min-width: 751rpx) {
-		.photo-grid {
-			grid-template-columns: repeat(4, 1fr);
-			gap: 12rpx;
-		}
-
-		.album-header {
-			height: 520rpx;
-		}
-
-		.album-title {
-			font-size: 56rpx;
-		}
-	}
+	/* 这里已经导入了外部SCSS文件，所以只需要保留必要的样式 */
+	/* 如果需要额外的样式，可以在这里添加 */
 </style>

@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.viewsets import GenericViewSet
+from rest_framework.viewsets import GenericViewSet,ModelViewSet
 from rest_framework.mixins import UpdateModelMixin, RetrieveModelMixin,ListModelMixin
 from .models import Guser
 from login.ser_ import LoginSerializer,GUserSerializer
@@ -44,8 +44,15 @@ class LoginView(APIView):
         }, status=status.HTTP_200_OK)
 
 
-class GuserViewSet(ListModelMixin,RetrieveModelMixin,UpdateModelMixin,GenericViewSet):
+class GuserViewSet(ModelViewSet):
     queryset = Guser.objects
     authentication_classes = [LoginAuth]
     serializer_class = GUserSerializer
     # def get_queryset(self):
+    # def get_queryset(self):
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        print(serializer)
+        return Response(serializer.data)
