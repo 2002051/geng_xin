@@ -24,9 +24,17 @@ SECRET_KEY = 'django-insecure-3ira1w_$0_i2dbmovld@6_@70o0@-*r)1k(9y%8dvrq*unilhf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+<<<<<<< Updated upstream
 
 ALLOWED_HOSTS = ['*']  # 开发环境允许所有主机
 
+=======
+ALLOWED_HOSTS = ['139.224.208.30', 'localhost', '127.0.0.1']
+# ALLOWED_HOSTS = ['*']  # 开发环境允许所有主机
+
+# 如果有跨域需求
+CORS_ORIGIN_ALLOW_ALL = True   # 纯 IP 测试期可以全放开，上线后可收紧
+>>>>>>> Stashed changes
 
 # Application definition
 
@@ -40,8 +48,40 @@ INSTALLED_APPS = [
     "login.apps.LoginConfig",  # 登录模块
     "album.apps.AlbumConfig",  # 相册模块
     "appsetting.apps.AppsettingConfig", # 应用界面配置
+    "notes.apps.NotesConfig",
     "rest_framework",
 ]
+# CKEditor 配置
+CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_IMAGE_BACKEND = 'pillow'
+CKEDITOR_JQUERY_URL = 'https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.min.js'
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',
+        'height': 500,
+        'width': '100%',
+        'toolbar_full': [
+            ['Source', '-', 'Save', 'NewPage', 'Preview', 'Print', '-', 'Templates'],
+            ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'],
+            ['Find', 'Replace', '-', 'SelectAll', '-', 'Scayt'],
+            ['Form', 'Checkbox', 'Radio', 'TextField', 'Textarea', 'Select', 'Button',
+             'ImageButton', 'HiddenField'],
+            ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', '-',
+             'RemoveFormat'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-',
+             'Blockquote', 'CreateDiv', '-', 'JustifyLeft', 'JustifyCenter',
+             'JustifyRight', 'JustifyBlock', '-', 'BidiLtr', 'BidiRtl'],
+            ['Link', 'Unlink', 'Anchor'],
+            ['Image', 'Flash', 'Table', 'HorizontalRule', 'Smiley', 'SpecialChar',
+             'PageBreak', 'Iframe'],
+            ['Styles', 'Format', 'Font', 'FontSize'],
+            ['TextColor', 'BGColor'],
+            ['Maximize', 'ShowBlocks', '-', 'About', 'pbckcode'],
+        ],
+        'extraPlugins': ','.join(['uploadimage', 'image2', 'codesnippet', 'widget', 'lineutils']),
+    }
+}
 
 # 允许所有域名访问（开发环境）
 CORS_ALLOW_ALL_ORIGINS = True
@@ -119,6 +159,16 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': "geng_xin",
+#         'USER': "root",
+#         'PASSWORD': "4161010",
+#         'HOST': "127.0.0.1",
+#         'PORT': "3306",
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

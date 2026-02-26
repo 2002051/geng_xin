@@ -13,13 +13,6 @@
 
 			<!-- 相册信息 -->
 			<view class="album-header-content">
-				<!-- 公开/私密标签（大标签，暂时隐藏） -->
-				<!--
-				<view class="privacy-tag" :class="{'public': album.is_public, 'private': !album.is_public}">
-					{{ album.is_public ? '公开相册' : '私密相册' }}
-				</view>
-				-->
-
 				<!-- 相册名称 -->
 				<text class="album-title">{{ album.name }}</text>
 
@@ -84,7 +77,8 @@
 			<view v-if="photoList.length > 0" class="photo-grid">
 				<view class="photo-item" v-for="(photo, index) in photoList" :key="photo.id || index"
 					@click="previewPhoto(index)">
-					<image class="photo-image" :src="photo.image" mode="aspectFill" :lazy-load="true" />
+					<!-- 修复：统一使用 getImageUrl 方法获取图片地址 -->
+					<image class="photo-image" :src="getImageUrl(photo)" mode="aspectFill" :lazy-load="true" />
 
 					<!-- 照片信息悬浮层 -->
 					<view class="photo-overlay">
@@ -281,6 +275,13 @@
 		},
 
 		methods: {
+			// 新增：统一获取图片URL的方法
+			getImageUrl(photo) {
+				if (!photo) return '';
+				// 尝试所有可能的字段名
+				return photo.image_url || photo.image || photo.url || photo.path || '';
+			},
+
 			async loadAlbumDetail() {
 				this.loading = true;
 				try {
@@ -373,18 +374,41 @@
 				}
 			},
 
+			// 修复：预览图片方法
 			previewPhoto(index) {
 				if (this.selectionMode) {
 					this.togglePhotoSelection(this.photoList[index].id);
 					return;
 				}
 
-				const urls = this.photoList.map(photo => photo.image_url);
+				// 修复：统一使用 getImageUrl 方法获取所有图片的URL
+				const urls = this.photoList.map(photo => {
+					return this.getImageUrl(photo);
+				}).filter(url => url && url.trim() !== ''); // 过滤掉空URL
+				
+				console.log('预览图片URLs:', urls); // 调试用
+				
+				if (urls.length === 0) {
+					uni.showToast({
+						title: '没有可预览的图片',
+						icon: 'none'
+					});
+					return;
+				}
+				
 				uni.previewImage({
 					current: index,
 					urls: urls,
 					indicator: 'number',
-					loop: true
+					loop: true,
+					// 添加失败回调以便调试
+					fail: (err) => {
+						console.error('预览图片失败:', err);
+						uni.showToast({
+							title: '预览失败',
+							icon: 'error'
+						});
+					}
 				});
 			},
 

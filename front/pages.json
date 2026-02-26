@@ -1,15 +1,16 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/index/index",
+			"path": "pages/album/album",
 			"style": {
-				"navigationBarTitleText": "我和老师"
+				"navigationBarTitleText": "相册"
 			}
 		},
 		{
-			"path": "pages/album/album",
+			
+			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "album"
+				"navigationBarTitleText": "笔记"
 			}
 		},
 		{
@@ -31,6 +32,12 @@
 			"style": {
 				"navigationBarTitleText": "相册"
 			}
+		},
+		{
+			"path": "notedetail/notedetail",
+			"style": {
+				"navigationBarTitleText": ""
+			}
 		}
 
 	],
@@ -43,13 +50,13 @@
 				"pagePath": "pages/index/index",
 				"iconPath": "/static/tabbar/article.png",
 				"selectedIconPath": "/static/tabbar/article_sel.png",
-				"text": "首页"
+				"text": "相册"
 			},
 			{
 				"pagePath": "pages/album/album",
 				"iconPath": "static/tabbar/album.png",
 				"selectedIconPath": "/static/tabbar/album_sel.png",
-				"text": "相册"
+				"text": "笔记"
 			},
 			{
 				"pagePath": "pages/self/self",
