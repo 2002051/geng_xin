@@ -10,7 +10,7 @@ class CorsMiddleWare(MiddlewareMixin):
             print(f"处理 OPTIONS 预检请求: {request.path}")
             response = HttpResponse()
             response['Content-Length'] = '0'
-            response['Access-Control-Allow-Origin'] = '*'
+            response['Access-Control-Allow-Origin'] = 'http://139.224.208.30'
             response['Access-Control-Allow-Headers'] = '*'
             response['Access-Control-Allow-Methods'] = '*'
             response['Access-Control-Allow-Credentials'] = 'true'
@@ -20,7 +20,7 @@ class CorsMiddleWare(MiddlewareMixin):
 
     def process_response(self, request, response):
         """给所有响应添加 CORS 头"""
-        response["Access-Control-Allow-Origin"] = "*"
+        response["Access-Control-Allow-Origin"] = "http://139.224.208.30"
         response["Access-Control-Allow-Headers"] = "*"
         response["Access-Control-Allow-Methods"] = "*"
         response["Access-Control-Allow-Credentials"] = "true"

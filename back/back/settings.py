@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-3ira1w_$0_i2dbmovld@6_@70o0@-*r)1k(9y%8dvrq*unilhf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # 开发环境允许所有主机
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -115,8 +115,17 @@ WSGI_APPLICATION = 'back.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'geng',
+        'USER':'root',
+        'PASSWORD':'4161010',
+        'HOST':'localhost',
+        'PORT':'3306',
+        'OPTIONS':{
+            'init_command':"SET sql_mode='STRICT_TRANS_TABLES'",
+            'charset':'utf8mb4',
+    
+        }
     }
 }
 
@@ -152,7 +161,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = 'static/'
 
 # Default primary key field type
@@ -164,4 +173,23 @@ MEDIA_URL = '/media/'
 # 设置上传文件的路径
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # 指定根目录
+CSRF_TRUSTED_ORIGINS = [
+               'http://139.224.208.30',  # 你的服务器IP
+                'http://139.224.208.30:80',
+                'http://127.0.0.1',
+                ]
 
+# 如果使用了HTTPS，还需要添加https版本
+# CSRF_TRUSTED_ORIGINS = ['https://你的域名']
+
+# Cookie设置（确保前端能读取到csrftoken）
+CSRF_COOKIE_NAME = 'csrftoken'
+CSRF_COOKIE_HTTPONLY = False  # 允许JavaScript读取csrftoken
+CSRF_COOKIE_SAMESITE = 'Lax'  # 或 'None'（如果跨域）
+
+# 如果前端是独立域名，还需要配置CORS
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
+CORS_ORIGIN_ALLOW_ALL = False  # 或设置为True
+CORS_ORIGIN_WHITELIST = [
+            'http://139.224.208.30',  # 你的H5地址
+            ]
